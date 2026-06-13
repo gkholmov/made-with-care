@@ -65,3 +65,16 @@ def sentiment(text: str) -> str:
     if _matches(low, _AFFIRM):
         return "affirmative"
     return "other"
+
+
+# Explicit request to bring in the family (multi-word phrases, matched as substrings).
+_CALL = ["call my", "phone my", "call them", "call family", "call the family", "talk to my",
+         "ring my", "get my son", "get my daughter", "i want to call",
+         "позвони", "позвонить", "набери", "свяжись с",
+         "anrufen", "ruf an", "familie anrufen"]
+
+
+def wants_call(text: str) -> bool:
+    """True when the elder explicitly asks to contact their family/relative."""
+    low = (text or "").lower()
+    return any(k in low for k in _CALL)

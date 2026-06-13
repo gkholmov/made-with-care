@@ -247,13 +247,8 @@ async def on_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             ans = match_confirm(text, lng)
             if ans:
                 break
-        if ans:
-            if orchestrator.expecting_confirmation(e.id):
-                await _drive(update, ans, "button", detect_language=False)
-            else:  # stale button (after resolve/restart) — never let it advance anything
-                await update.message.reply_text(
-                    t("ask_problem", e.language),
-                    reply_markup=_keyboard(e.language, rel.name if rel else ""))
+        if ans:  # ✅/❌ tap -> canonical yes/no into the conversational brain
+            await _drive(update, ans, "button", detect_language=False)
             return
         # Match the tap in any supported language: after a language switch the elder's
         # on-screen keyboard may still show the previously cached labels.
@@ -262,18 +257,15 @@ async def on_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             act = match_button(text, lng, rel.name if rel else "")
             if act:
                 break
-        confirm_pending = orchestrator.expecting_confirmation(e.id)
         if act == "problem":
             await update.message.reply_text(
                 t("ask_problem", e.language),
-                reply_markup=_keyboard(e.language, rel.name if rel else "",
-                                       expect_confirm=confirm_pending))
+                reply_markup=_keyboard(e.language, rel.name if rel else ""))
             return
         if act == "photo":
             await update.message.reply_text(
                 t("ask_photo", e.language),
-                reply_markup=_keyboard(e.language, rel.name if rel else "",
-                                       expect_confirm=confirm_pending))
+                reply_markup=_keyboard(e.language, rel.name if rel else ""))
             return
         if act == "call":
             if rel and rel.telegram_id:

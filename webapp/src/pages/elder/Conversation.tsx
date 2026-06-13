@@ -108,7 +108,7 @@ export default function Conversation({
             </>
           ) : (
             <>
-              {reply?.expect_confirm && (
+              {messages.length > 0 && (
                 <div className="flex gap-3">
                   <button
                     disabled={pending}

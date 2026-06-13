@@ -9,6 +9,7 @@ import {
 import { Lang, t } from "../../lib/i18n";
 import { tg } from "../../lib/telegram";
 import { useRecorder } from "../../lib/voice";
+import { fileToDownscaledB64 } from "../../lib/image";
 import Home from "./Home";
 import Conversation, { Msg } from "./Conversation";
 
@@ -96,11 +97,21 @@ export default function ElderShell({ lang: fallbackLang }: { lang: Lang }) {
   const sendPhoto = (file?: File) => {
     setView("conversation");
     const image = file ? URL.createObjectURL(file) : undefined;
-    void drive(() => api.post<ReplyEnvelope>("/api/elder/photo", {}), {
-      role: "me",
-      text: t("conv_photo_sent", lang),
-      image,
-    });
+    void drive(
+      async () => {
+        let payload: Record<string, string> = {};
+        if (file) {
+          try {
+            const r = await fileToDownscaledB64(file);
+            payload = { image_b64: r.b64, mime: r.mime };
+          } catch {
+            /* fall back to flag-only */
+          }
+        }
+        return api.post<ReplyEnvelope>("/api/elder/photo", payload);
+      },
+      { role: "me", text: t("conv_photo_sent", lang), image },
+    );
   };
 
   // Voice: the transcript comes back from the server, so we append it after the call

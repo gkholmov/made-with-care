@@ -185,13 +185,20 @@ def elder_message(body: MessageBody, ident: Identity = Depends(current_identity)
     return _reply_json(reply)
 
 
+class PhotoBody(BaseModel):
+    image_b64: str = ""            # downscaled screen photo; passed to the vision model
+    mime: str = "image/jpeg"
+
+
 @app.post("/api/elder/photo")
-def elder_photo(ident: Identity = Depends(current_identity)):
-    """The elder showed their screen. v1 only flags presence (no vision yet), so the
-    image is never uploaded or stored — strictly more private."""
+def elder_photo(body: PhotoBody = PhotoBody(), ident: Identity = Depends(current_identity)):
+    """The elder showed their screen. The image is sent to the vision model for THIS
+    turn only — it is not stored."""
     e = _elder(ident)
     reply = orchestrator.handle(e.id, e.name, e.language, "(sent a photo of the screen)",
-                                modality="photo", photo_present=True, notifier=_web_notifier())
+                                modality="photo", photo_present=True,
+                                image_b64=body.image_b64, image_mime=body.mime,
+                                notifier=_web_notifier())
     return _reply_json(reply)
 
 
@@ -229,8 +236,7 @@ def elder_conversation(ident: Identity = Depends(current_identity)):
         return {"active": False, "turns": []}
     turns = [{"role": "bot" if d == "out" else "me", "text": text, "modality": m}
              for (d, m, text) in store.conversation_turns(e.id)]
-    return {"active": True, "state": sess.state,
-            "expect_confirm": orchestrator.expecting_confirmation(e.id), "turns": turns}
+    return {"active": True, "state": sess.state, "turns": turns}
 
 
 # ---------------- relative dashboard ----------------

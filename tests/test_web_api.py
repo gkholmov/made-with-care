@@ -105,8 +105,8 @@ class TestWebApi(Base):
         r = self.client.post("/api/elder/topic", headers=self.auth(1001), json={"name": "wifi"})
         self.assertEqual(r.status_code, 200)
         reply = r.json()["reply"]
-        self.assertIn("Step 1 of 3", reply["text"])          # step returned IN the response
-        self.assertTrue(reply["expect_confirm"])             # wifi step 0 has check=True
+        self.assertIn("fan", reply["text"].lower())          # guidance-grounded reply, in-app
+        self.assertEqual(reply["state"], "active")
         self.assertEqual(store.active_session(eid).scenario, "wifi")
         bad = self.client.post("/api/elder/topic", headers=self.auth(1001), json={"name": "nope"})
         self.assertEqual(bad.status_code, 400)
@@ -122,15 +122,17 @@ class TestWebApi(Base):
         self.assertEqual(r.json()["reply"]["state"], "resolved")
         self.assertIn("resolved", store.events(eid))
 
-    def test_elder_photo_flags_presence_no_storage(self):
+    def test_elder_photo_with_image(self):
         from ph.db import store
         eid, rel = self.make_elder(tg_id=1001)
-        r = self.client.post("/api/elder/photo", headers=self.auth(1001))
+        r = self.client.post("/api/elder/photo", headers=self.auth(1001),
+                             json={"image_b64": "aGVsbG8=", "mime": "image/jpeg"})
         self.assertEqual(r.status_code, 200)
         self.assertIn("reply", r.json())
-        # a 'photo' turn was recorded, but no image bytes were stored anywhere
+        # a 'photo' turn was recorded; the raw image is not persisted
         turns = store.conversation_turns(eid)
         self.assertTrue(any(m == "photo" for (_d, m, _t) in turns))
+        self.assertNotIn("aGVsbG8", store.all_turn_text())
 
     def test_elder_voice_transcribes_and_drives(self):
         import base64
@@ -155,10 +157,9 @@ class TestWebApi(Base):
         self.client.post("/api/elder/topic", headers=self.auth(1001), json={"name": "wifi"})
         conv = self.client.get("/api/elder/conversation", headers=self.auth(1001)).json()
         self.assertTrue(conv["active"])
-        self.assertTrue(conv["expect_confirm"])
         self.assertEqual(conv["turns"][0]["role"], "me")     # the trigger (inbound) first
-        self.assertEqual(conv["turns"][-1]["role"], "bot")   # the step (outbound) last
-        self.assertIn("Step 1 of 3", conv["turns"][-1]["text"])
+        self.assertEqual(conv["turns"][-1]["role"], "bot")   # the reply (outbound) last
+        self.assertIn("fan", conv["turns"][-1]["text"].lower())
 
     def test_patch_settings(self):
         eid, rel = self.make_elder(tg_id=1001, rel_tg=2002)
