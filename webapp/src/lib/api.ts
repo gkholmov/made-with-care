@@ -58,6 +58,37 @@ export interface ElderHome {
   strings: { greeting_short: string; photo: string; call: string };
 }
 
+export type ReplyState =
+  | "active"
+  | "resolved"
+  | "escalated"
+  | "safety_stop"
+  | "clarify";
+
+export interface Reply {
+  text: string;
+  state: ReplyState;
+  expect_confirm: boolean;
+  show_call: boolean;
+}
+
+export interface ReplyEnvelope {
+  reply: Reply;
+}
+
+export interface ConvTurn {
+  role: "bot" | "me";
+  text: string;
+  modality: string;
+}
+
+export interface Conversation {
+  active: boolean;
+  state?: ReplyState;
+  expect_confirm?: boolean;
+  turns: ConvTurn[];
+}
+
 export interface ElderSummary {
   elder_id: number;
   name: string;

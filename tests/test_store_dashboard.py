@@ -61,3 +61,17 @@ class TestDashboardStore(Base):
         eid, rel = self.make_elder()
         self.assertEqual(store.get_elder(eid).id, eid)
         self.assertIsNone(store.get_elder(999))
+
+    def test_conversation_turns(self):
+        eid, rel = self.make_elder()
+        self.assertEqual(store.conversation_turns(eid), [])      # no session yet
+        s = store.start_session(eid, "wifi")
+        store.add_turn(s.id, "in", "button", "wifi")
+        store.add_turn(s.id, "out", "text", "Step 1 of 3: ...")
+        store.add_turn(s.id, "in", "text", "my code is 445566")  # redacted on write
+        turns = store.conversation_turns(eid)
+        self.assertEqual([d for (d, _m, _t) in turns], ["in", "out", "in"])  # oldest-first
+        self.assertEqual(turns[1][2], "Step 1 of 3: ...")
+        self.assertNotIn("445566", turns[2][2])                 # inbound stays redacted
+        store.update_session(s.id, state="resolved")
+        self.assertEqual(store.conversation_turns(eid), [])     # resolved => not active

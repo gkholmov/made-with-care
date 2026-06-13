@@ -26,7 +26,7 @@ from ph.core.i18n import t
 from ph.db import store
 from ph.notifications import Notifier
 from ph.providers import get_email
-from ph.ui.keyboard import TOPIC_ORDER, TOPIC_TRIGGERS, keyboard_rows
+from ph.ui.keyboard import TOPIC_ORDER, TOPIC_TRIGGERS
 from ph.web.auth import InitDataError, validate_init_data
 
 log = logging.getLogger("ph.web")
@@ -43,18 +43,10 @@ def _web_notifier() -> Notifier:
     return Notifier(telegram_send=_tg_send, email=get_email())
 
 
-def _send_to_elder(chat_id: int, text: str, language: str, relative_name: str,
-                   expect_confirm: bool) -> None:
-    """Push a bot message (with the home keyboard) to the elder's chat, so a Mini App
-    tap continues in the chat exactly like a keyboard tap — regardless of how the app
-    was launched (sendData only works from a keyboard button; this works everywhere)."""
-    rows = keyboard_rows(language, relative_name, expect_confirm=expect_confirm,
-                         webapp_url=settings.webapp_url)
-    httpx.post(f"https://api.telegram.org/bot{settings.telegram_token}/sendMessage",
-               json={"chat_id": chat_id, "text": text,
-                     "reply_markup": {"keyboard": rows, "resize_keyboard": True,
-                                      "is_persistent": True}},
-               timeout=20)
+def _reply_json(r: orchestrator.Reply) -> dict:
+    """Serialize an orchestrator Reply for the in-app conversation."""
+    return {"reply": {"text": r.text, "state": r.state,
+                      "expect_confirm": r.expect_confirm, "show_call": r.show_call}}
 
 _bot_username_cache: dict = {}
 
@@ -155,40 +147,65 @@ def elder_home(ident: Identity = Depends(current_identity)):
     }
 
 
+def _elder(ident: Identity):
+    if ident.role != "elder":
+        raise HTTPException(status_code=404)
+    return ident.elder
+
+
 class TopicBody(BaseModel):
     name: str
 
 
+class MessageBody(BaseModel):
+    text: str = Field(min_length=1, max_length=2000)
+
+
 @app.post("/api/elder/topic")
 def elder_topic(body: TopicBody, ident: Identity = Depends(current_identity)):
-    """Start a playbook from a Mini App topic tap. Drives the same orchestrator the
-    chat uses, then pushes the first step to the elder's chat (the app then closes)."""
-    if ident.role != "elder":
-        raise HTTPException(status_code=404)
+    """Start a playbook from an in-app topic tap; the conversation stays in the app."""
+    e = _elder(ident)
     if body.name not in TOPIC_TRIGGERS:
         raise HTTPException(status_code=400, detail="unknown topic")
-    e = ident.elder
     sess = store.active_session(e.id)
     if sess:  # same as a chat topic-button tap: start the chosen playbook fresh
         store.update_session(sess.id, state="closed")
     reply = orchestrator.handle(e.id, e.name, e.language, TOPIC_TRIGGERS[body.name],
                                 modality="button", notifier=_web_notifier())
-    rel = store.get_trusted_relative(e.id)
-    _send_to_elder(e.telegram_id, reply.text, e.language,
-                   rel.name if rel else "", reply.expect_confirm)
-    return {"ok": True}
+    return _reply_json(reply)
+
+
+@app.post("/api/elder/message")
+def elder_message(body: MessageBody, ident: Identity = Depends(current_identity)):
+    """An in-app answer: a free-typed reply, or the canonical 'yes'/'no' the ✅/❌
+    buttons send (intent.sentiment classifies those regardless of the elder's language)."""
+    e = _elder(ident)
+    reply = orchestrator.handle(e.id, e.name, e.language, body.text,
+                                modality="text", notifier=_web_notifier())
+    return _reply_json(reply)
 
 
 @app.post("/api/elder/photo")
 def elder_photo(ident: Identity = Depends(current_identity)):
-    """Ask the elder to send a screen photo, in their chat."""
-    if ident.role != "elder":
-        raise HTTPException(status_code=404)
-    e = ident.elder
-    rel = store.get_trusted_relative(e.id)
-    _send_to_elder(e.telegram_id, t("ask_photo", e.language), e.language,
-                   rel.name if rel else "", False)
-    return {"ok": True}
+    """The elder showed their screen. v1 only flags presence (no vision yet), so the
+    image is never uploaded or stored — strictly more private."""
+    e = _elder(ident)
+    reply = orchestrator.handle(e.id, e.name, e.language, "(sent a photo of the screen)",
+                                modality="photo", photo_present=True, notifier=_web_notifier())
+    return _reply_json(reply)
+
+
+@app.get("/api/elder/conversation")
+def elder_conversation(ident: Identity = Depends(current_identity)):
+    """Current in-app conversation, so the app can resume where the elder left off."""
+    e = _elder(ident)
+    sess = store.active_session(e.id)
+    if not sess:
+        return {"active": False, "turns": []}
+    turns = [{"role": "bot" if d == "out" else "me", "text": text, "modality": m}
+             for (d, m, text) in store.conversation_turns(e.id)]
+    return {"active": True, "state": sess.state,
+            "expect_confirm": orchestrator.expecting_confirmation(e.id), "turns": turns}
 
 
 # ---------------- relative dashboard ----------------

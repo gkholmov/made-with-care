@@ -99,27 +99,50 @@ class TestWebApi(Base):
                                  headers=self.auth(5005)).json()
         self.assertEqual(detail["join_link"], body["link"])
 
-    def test_elder_topic_drives_playbook_and_messages_chat(self):
-        from ph.web import api as api_module
+    def test_elder_topic_returns_reply_in_app(self):
         from ph.db import store
-        sent = []
-        orig = api_module._send_to_elder
-        api_module._send_to_elder = lambda *a, **k: sent.append(a)  # don't hit Telegram
-        try:
-            eid, rel = self.make_elder(tg_id=1001, rel_tg=2002)
-            r = self.client.post("/api/elder/topic", headers=self.auth(1001), json={"name": "wifi"})
-            self.assertEqual(r.status_code, 200)
-            sess = store.active_session(eid)
-            self.assertEqual(sess.scenario, "wifi")          # playbook actually started
-            self.assertEqual(len(sent), 1)                   # a chat message was pushed
-            self.assertIn("Step 1 of 3", sent[0][1])         # first step text
-            bad = self.client.post("/api/elder/topic", headers=self.auth(1001), json={"name": "nope"})
-            self.assertEqual(bad.status_code, 400)
-            # a relative (non-elder) cannot drive elder actions
-            forbidden = self.client.post("/api/elder/topic", headers=self.auth(2002), json={"name": "wifi"})
-            self.assertEqual(forbidden.status_code, 404)
-        finally:
-            api_module._send_to_elder = orig
+        eid, rel = self.make_elder(tg_id=1001, rel_tg=2002)
+        r = self.client.post("/api/elder/topic", headers=self.auth(1001), json={"name": "wifi"})
+        self.assertEqual(r.status_code, 200)
+        reply = r.json()["reply"]
+        self.assertIn("Step 1 of 3", reply["text"])          # step returned IN the response
+        self.assertTrue(reply["expect_confirm"])             # wifi step 0 has check=True
+        self.assertEqual(store.active_session(eid).scenario, "wifi")
+        bad = self.client.post("/api/elder/topic", headers=self.auth(1001), json={"name": "nope"})
+        self.assertEqual(bad.status_code, 400)
+        forbidden = self.client.post("/api/elder/topic", headers=self.auth(2002), json={"name": "wifi"})
+        self.assertEqual(forbidden.status_code, 404)         # relative can't drive elder actions
+
+    def test_elder_message_yes_resolves(self):
+        from ph.db import store
+        eid, rel = self.make_elder(tg_id=1001)
+        self.client.post("/api/elder/topic", headers=self.auth(1001), json={"name": "wifi"})
+        r = self.client.post("/api/elder/message", headers=self.auth(1001), json={"text": "yes"})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()["reply"]["state"], "resolved")
+        self.assertIn("resolved", store.events(eid))
+
+    def test_elder_photo_flags_presence_no_storage(self):
+        from ph.db import store
+        eid, rel = self.make_elder(tg_id=1001)
+        r = self.client.post("/api/elder/photo", headers=self.auth(1001))
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("reply", r.json())
+        # a 'photo' turn was recorded, but no image bytes were stored anywhere
+        turns = store.conversation_turns(eid)
+        self.assertTrue(any(m == "photo" for (_d, m, _t) in turns))
+
+    def test_elder_conversation_history_and_empty(self):
+        eid, rel = self.make_elder(tg_id=1001)
+        empty = self.client.get("/api/elder/conversation", headers=self.auth(1001)).json()
+        self.assertEqual(empty, {"active": False, "turns": []})
+        self.client.post("/api/elder/topic", headers=self.auth(1001), json={"name": "wifi"})
+        conv = self.client.get("/api/elder/conversation", headers=self.auth(1001)).json()
+        self.assertTrue(conv["active"])
+        self.assertTrue(conv["expect_confirm"])
+        self.assertEqual(conv["turns"][0]["role"], "me")     # the trigger (inbound) first
+        self.assertEqual(conv["turns"][-1]["role"], "bot")   # the step (outbound) last
+        self.assertIn("Step 1 of 3", conv["turns"][-1]["text"])
 
     def test_patch_settings(self):
         eid, rel = self.make_elder(tg_id=1001, rel_tg=2002)

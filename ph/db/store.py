@@ -286,3 +286,16 @@ def pending_join_token(elder_id: int) -> Optional[str]:
     if row and row["notes"].startswith("token:"):
         return row["notes"][6:]
     return None
+
+
+def conversation_turns(elder_id: int, limit: int = 40) -> list:
+    """Most-recent ACTIVE session's turns, oldest-first, for in-app rendering:
+    (direction, modality, text). Inbound text is already redacted at write time.
+    Resolved/escalated sessions aren't 'active', so they read as no conversation."""
+    sess = _one("SELECT id FROM session WHERE elder_id=? AND state='active' ORDER BY id DESC",
+                (elder_id,))
+    if not sess:
+        return []
+    rows = _q("SELECT direction,modality,text FROM turn WHERE session_id=? ORDER BY id DESC LIMIT ?",
+              (sess["id"], limit))
+    return [(r["direction"], r["modality"], r["text"]) for r in reversed(rows)]

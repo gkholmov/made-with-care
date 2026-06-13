@@ -17,6 +17,40 @@ const STR: Record<string, Record<Lang, string>> = {
     de: "Bildschirm zeigen",
   },
   call: { en: "Call", ru: "Позвонить", de: "Anrufen" },
+  typing: { en: "Typing…", ru: "Печатает…", de: "Schreibt…" },
+  type_here: {
+    en: "Type your answer",
+    ru: "Напишите ответ",
+    de: "Antwort eingeben",
+  },
+  send: { en: "Send", ru: "Отправить", de: "Senden" },
+  conf_worked: {
+    en: "✅ It worked",
+    ru: "✅ Получилось",
+    de: "✅ Hat geklappt",
+  },
+  conf_not_yet: { en: "❌ Not yet", ru: "❌ Пока нет", de: "❌ Noch nicht" },
+  photo_hint: {
+    en: "📷 Show me your screen",
+    ru: "📷 Покажите экран",
+    de: "📷 Bildschirm zeigen",
+  },
+  conv_photo_sent: {
+    en: "📷 Photo sent",
+    ru: "📷 Фото отправлено",
+    de: "📷 Foto gesendet",
+  },
+  back_home: {
+    en: "Back to topics",
+    ru: "К списку тем",
+    de: "Zurück zu den Themen",
+  },
+  conv_error: {
+    en: "Hmm, please try again.",
+    ru: "Хм, попробуйте ещё раз.",
+    de: "Bitte erneut versuchen.",
+  },
+  done_title: { en: "All done! 🎉", ru: "Готово! 🎉", de: "Fertig! 🎉" },
   dashboard: {
     en: "Family dashboard",
     ru: "Семейная панель",

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { api, Me } from "./lib/api";
 import { normLang, t } from "./lib/i18n";
 import { tg } from "./lib/telegram";
-import ElderHome from "./pages/elder/Home";
+import ElderShell from "./pages/elder/ElderShell";
 import Dashboard from "./pages/relative/Dashboard";
 import ElderDetail from "./pages/relative/ElderDetail";
 import SetupWizard from "./pages/relative/SetupWizard";
@@ -52,7 +52,7 @@ export default function App() {
   if (error) return <Center>{t("error", lang)}</Center>;
   if (!me) return <Center>{t("loading", lang)}</Center>;
 
-  if (me.role === "elder") return <ElderHome lang={lang} />;
+  if (me.role === "elder") return <ElderShell lang={lang} />;
 
   if (me.role === "unknown" && page.view !== "wizard")
     return <Unknown lang={lang} onSetup={() => setPage({ view: "wizard" })} />;
