@@ -138,29 +138,19 @@ export default function Conversation({
                 {recording ? t("recording", lang) : t("tell_problem", lang)}
               </button>
               <div className="flex items-end gap-2">
-                <label
-                  aria-label={t("photo_hint", lang)}
-                  className={
-                    "flex min-h-touch shrink-0 items-center rounded-2xl bg-tg-secondary-bg px-4 text-2xl active:opacity-70 " +
-                    (pending
-                      ? "pointer-events-none opacity-40"
-                      : "cursor-pointer")
-                  }
-                >
-                  📷
-                  <input
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    hidden
-                    disabled={pending}
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) onPhoto(f);
-                      e.target.value = "";
-                    }}
-                  />
-                </label>
+                <PhotoButton
+                  emoji="📷"
+                  capture
+                  label={t("photo_hint", lang)}
+                  pending={pending}
+                  onPhoto={onPhoto}
+                />
+                <PhotoButton
+                  emoji="🖼️"
+                  label={t("gallery", lang)}
+                  pending={pending}
+                  onPhoto={onPhoto}
+                />
                 <textarea
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
@@ -181,6 +171,46 @@ export default function Conversation({
         </div>
       </div>
     </div>
+  );
+}
+
+/** A photo picker. `capture` forces the camera; without it the OS shows the gallery
+ * / file chooser, so the elder can upload any existing image. */
+export function PhotoButton({
+  emoji,
+  label,
+  capture,
+  pending,
+  onPhoto,
+}: {
+  emoji: string;
+  label: string;
+  capture?: boolean;
+  pending: boolean;
+  onPhoto: (file: File) => void;
+}) {
+  return (
+    <label
+      aria-label={label}
+      className={
+        "flex min-h-touch shrink-0 items-center rounded-2xl bg-tg-secondary-bg px-4 text-2xl active:opacity-70 " +
+        (pending ? "pointer-events-none opacity-40" : "cursor-pointer")
+      }
+    >
+      {emoji}
+      <input
+        type="file"
+        accept="image/*"
+        {...(capture ? { capture: "environment" as const } : {})}
+        hidden
+        disabled={pending}
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) onPhoto(f);
+          e.target.value = "";
+        }}
+      />
+    </label>
   );
 }
 

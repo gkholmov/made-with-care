@@ -68,6 +68,11 @@ const STR: Record<string, Record<Lang, string>> = {
   },
   transcribing: { en: "Listening…", ru: "Слушаю…", de: "Höre zu…" },
   continue_chat: { en: "▶️ Continue", ru: "▶️ Продолжить", de: "▶️ Weiter" },
+  gallery: {
+    en: "🖼️ Choose a photo",
+    ru: "🖼️ Выбрать фото",
+    de: "🖼️ Foto auswählen",
+  },
   dashboard: {
     en: "Family dashboard",
     ru: "Семейная панель",

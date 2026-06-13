@@ -1,6 +1,35 @@
 import { ElderHome } from "../../lib/api";
 import { Lang, t } from "../../lib/i18n";
 
+/** A full-width photo tile. `capture` forces the camera; without it the OS shows the
+ * gallery / file chooser so the elder can upload any existing image. */
+function PhotoTile({
+  label,
+  capture,
+  onPhoto,
+}: {
+  label: string;
+  capture?: boolean;
+  onPhoto: (file: File) => void;
+}) {
+  return (
+    <label className="flex min-h-touch w-full cursor-pointer items-center justify-center rounded-2xl bg-tg-secondary-bg px-5 text-elder-lg font-semibold active:opacity-70">
+      {label}
+      <input
+        type="file"
+        accept="image/*"
+        {...(capture ? { capture: "environment" as const } : {})}
+        hidden
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) onPhoto(f);
+          e.target.value = "";
+        }}
+      />
+    </label>
+  );
+}
+
 /** Presentational launcher: voice, key problems, screen, call. ElderShell owns all
  * the actions and the conversation state. Huge, stable, no motion. */
 export default function Home({
@@ -69,20 +98,8 @@ export default function Home({
       </div>
 
       <div className="mt-auto flex flex-col gap-3 pb-4">
-        <label className="flex min-h-touch w-full cursor-pointer items-center justify-center rounded-2xl bg-tg-secondary-bg px-5 text-elder-lg font-semibold active:opacity-70">
-          {t("photo_hint", lang)}
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            hidden
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) onPhoto(f);
-              e.target.value = "";
-            }}
-          />
-        </label>
+        <PhotoTile label={t("photo_hint", lang)} capture onPhoto={onPhoto} />
+        <PhotoTile label={t("gallery", lang)} onPhoto={onPhoto} />
         {home.relative.telegram_id && (
           <button
             onClick={onCall}
