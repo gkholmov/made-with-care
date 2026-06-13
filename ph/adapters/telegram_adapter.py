@@ -15,8 +15,8 @@ from telegram.ext import (Application, CommandHandler, MessageHandler, Conversat
 from ph.config import settings
 from ph.core import orchestrator
 from ph.core.i18n import t, command_descriptions
-from ph.ui.keyboard import (button_labels, match_button, topic_labels, match_topic,
-                            confirm_labels, match_confirm, TOPIC_TRIGGERS)
+from ph.ui.keyboard import (match_button, match_topic, match_confirm, keyboard_rows,
+                            TOPIC_TRIGGERS)
 from ph.providers import get_stt, get_tts, get_email
 from ph.notifications import Notifier
 from ph.db import store
@@ -38,22 +38,18 @@ def _notifier() -> Notifier:
 
 def _keyboard(language: str, relative_name: str = "",
               expect_confirm: bool = False) -> ReplyKeyboardMarkup:
-    labels = button_labels(language, relative_name)
-    tl = topic_labels(language)
-    rows = [
-        [KeyboardButton(labels[0])],                          # 🎙️ tell the problem
-        [KeyboardButton(labels[1])],                          # 📷 show the screen
-        [KeyboardButton(labels[2])],                          # 📞 call relative
-        [KeyboardButton(tl[0]), KeyboardButton(tl[1])],       # 📶 internet | 🔑 password
-        [KeyboardButton(tl[2]), KeyboardButton(tl[3])],       # 📱 updated  | 🔍 easier
-        [KeyboardButton(tl[4])],                              # ⚠️ suspicious message
-    ]
-    if settings.webapp_url:  # Mini App entry; launched here so sendData works
-        rows.insert(0, [KeyboardButton(t("btn_open_app", language),
-                                       web_app=WebAppInfo(url=settings.webapp_url))])
-    if expect_confirm:  # ✅ it worked | ❌ not yet — always the very top row
-        cl = confirm_labels(language)
-        rows.insert(0, [KeyboardButton(cl[0]), KeyboardButton(cl[1])])
+    # Layout lives in ph.ui.keyboard.keyboard_rows (shared with the web sender); here we
+    # just turn the plain button specs into Telegram objects.
+    rows = []
+    for spec_row in keyboard_rows(language, relative_name, expect_confirm=expect_confirm,
+                                  webapp_url=settings.webapp_url):
+        row = []
+        for btn in spec_row:
+            if "web_app" in btn:
+                row.append(KeyboardButton(btn["text"], web_app=WebAppInfo(url=btn["web_app"]["url"])))
+            else:
+                row.append(KeyboardButton(btn["text"]))
+        rows.append(row)
     return ReplyKeyboardMarkup(rows, resize_keyboard=True, is_persistent=True,
                                one_time_keyboard=False)
 

@@ -99,6 +99,28 @@ class TestWebApi(Base):
                                  headers=self.auth(5005)).json()
         self.assertEqual(detail["join_link"], body["link"])
 
+    def test_elder_topic_drives_playbook_and_messages_chat(self):
+        from ph.web import api as api_module
+        from ph.db import store
+        sent = []
+        orig = api_module._send_to_elder
+        api_module._send_to_elder = lambda *a, **k: sent.append(a)  # don't hit Telegram
+        try:
+            eid, rel = self.make_elder(tg_id=1001, rel_tg=2002)
+            r = self.client.post("/api/elder/topic", headers=self.auth(1001), json={"name": "wifi"})
+            self.assertEqual(r.status_code, 200)
+            sess = store.active_session(eid)
+            self.assertEqual(sess.scenario, "wifi")          # playbook actually started
+            self.assertEqual(len(sent), 1)                   # a chat message was pushed
+            self.assertIn("Step 1 of 3", sent[0][1])         # first step text
+            bad = self.client.post("/api/elder/topic", headers=self.auth(1001), json={"name": "nope"})
+            self.assertEqual(bad.status_code, 400)
+            # a relative (non-elder) cannot drive elder actions
+            forbidden = self.client.post("/api/elder/topic", headers=self.auth(2002), json={"name": "wifi"})
+            self.assertEqual(forbidden.status_code, 404)
+        finally:
+            api_module._send_to_elder = orig
+
     def test_patch_settings(self):
         eid, rel = self.make_elder(tg_id=1001, rel_tg=2002)
         r = self.client.patch(f"/api/relative/elders/{eid}", headers=self.auth(2002),

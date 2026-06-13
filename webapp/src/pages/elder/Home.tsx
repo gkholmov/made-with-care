@@ -24,9 +24,24 @@ export default function ElderHome({ lang: fallbackLang }: { lang: Lang }) {
   }
   const lang = (home.language as Lang) || fallbackLang;
 
-  const sendTopic = (key: string) =>
-    tg().sendData(JSON.stringify({ action: "topic", name: key }));
-  const sendPhoto = () => tg().sendData(JSON.stringify({ action: "photo" }));
+  // Drive the playbook over HTTP (works no matter how the app was launched), then
+  // close so the elder lands back in the chat where the step appears.
+  const sendTopic = async (key: string) => {
+    try {
+      await api.post("/api/elder/topic", { name: key });
+    } catch {
+      /* ignore — the chat will still show whatever did happen */
+    }
+    tg().close();
+  };
+  const sendPhoto = async () => {
+    try {
+      await api.post("/api/elder/photo", {});
+    } catch {
+      /* ignore */
+    }
+    tg().close();
+  };
   const callRelative = () => {
     if (home.relative.telegram_id)
       tg().openTelegramLink(`tg://user?id=${home.relative.telegram_id}`);

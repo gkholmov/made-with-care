@@ -3,7 +3,8 @@ from tests._bootstrap import unittest
 from ph.core.redaction import redact, contains_secret
 from ph.core import safety, intent, playbooks
 from ph.core.i18n import t, normalize_lang, detect_lang, command_descriptions
-from ph.ui.keyboard import button_labels, match_button, confirm_labels, match_confirm
+from ph.ui.keyboard import (button_labels, match_button, confirm_labels, match_confirm,
+                            keyboard_rows)
 
 
 class TestRedaction(unittest.TestCase):
@@ -125,6 +126,18 @@ class TestI18nKeyboard(unittest.TestCase):
             self.assertEqual(intent.sentiment(no), "negative", no)
         self.assertIsNone(match_confirm("random", "en"))
         self.assertNotEqual(confirm_labels("ru"), confirm_labels("en"))
+
+    def test_keyboard_rows(self):
+        # Plain spec: 6 base rows; web_app button only with a url; confirm row on top.
+        base = keyboard_rows("en", "Anna")
+        self.assertEqual(len(base), 6)
+        self.assertTrue(all("web_app" not in b for row in base for b in row))
+        withapp = keyboard_rows("en", "Anna", webapp_url="https://x.app")
+        self.assertEqual(withapp[0][0]["web_app"]["url"], "https://x.app")
+        full = keyboard_rows("ru", "Anna", expect_confirm=True, webapp_url="https://x.app")
+        self.assertEqual([b["text"] for b in full[0]], confirm_labels("ru"))  # confirm on top
+        # Button specs are exactly Telegram's KeyboardButton JSON shape.
+        self.assertEqual(set(base[0][0]), {"text"})
 
     def test_step_progress_localized(self):
         seen = set()

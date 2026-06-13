@@ -21,13 +21,40 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from ph.config import settings
+from ph.core import orchestrator
 from ph.core.i18n import t
 from ph.db import store
-from ph.ui.keyboard import TOPIC_ORDER
+from ph.notifications import Notifier
+from ph.providers import get_email
+from ph.ui.keyboard import TOPIC_ORDER, TOPIC_TRIGGERS, keyboard_rows
 from ph.web.auth import InitDataError, validate_init_data
 
 log = logging.getLogger("ph.web")
 app = FastAPI(title="Parent Helper Mini App", docs_url=None, redoc_url=None)
+
+
+def _tg_send(chat_id: int, text: str) -> bool:
+    r = httpx.post(f"https://api.telegram.org/bot{settings.telegram_token}/sendMessage",
+                   json={"chat_id": chat_id, "text": text}, timeout=15)
+    return r.status_code == 200
+
+
+def _web_notifier() -> Notifier:
+    return Notifier(telegram_send=_tg_send, email=get_email())
+
+
+def _send_to_elder(chat_id: int, text: str, language: str, relative_name: str,
+                   expect_confirm: bool) -> None:
+    """Push a bot message (with the home keyboard) to the elder's chat, so a Mini App
+    tap continues in the chat exactly like a keyboard tap — regardless of how the app
+    was launched (sendData only works from a keyboard button; this works everywhere)."""
+    rows = keyboard_rows(language, relative_name, expect_confirm=expect_confirm,
+                         webapp_url=settings.webapp_url)
+    httpx.post(f"https://api.telegram.org/bot{settings.telegram_token}/sendMessage",
+               json={"chat_id": chat_id, "text": text,
+                     "reply_markup": {"keyboard": rows, "resize_keyboard": True,
+                                      "is_persistent": True}},
+               timeout=20)
 
 _bot_username_cache: dict = {}
 
@@ -126,6 +153,42 @@ def elder_home(ident: Identity = Depends(current_identity)):
             "call": t("btn_call", e.language, name=(rel.name if rel else "")).strip(),
         },
     }
+
+
+class TopicBody(BaseModel):
+    name: str
+
+
+@app.post("/api/elder/topic")
+def elder_topic(body: TopicBody, ident: Identity = Depends(current_identity)):
+    """Start a playbook from a Mini App topic tap. Drives the same orchestrator the
+    chat uses, then pushes the first step to the elder's chat (the app then closes)."""
+    if ident.role != "elder":
+        raise HTTPException(status_code=404)
+    if body.name not in TOPIC_TRIGGERS:
+        raise HTTPException(status_code=400, detail="unknown topic")
+    e = ident.elder
+    sess = store.active_session(e.id)
+    if sess:  # same as a chat topic-button tap: start the chosen playbook fresh
+        store.update_session(sess.id, state="closed")
+    reply = orchestrator.handle(e.id, e.name, e.language, TOPIC_TRIGGERS[body.name],
+                                modality="button", notifier=_web_notifier())
+    rel = store.get_trusted_relative(e.id)
+    _send_to_elder(e.telegram_id, reply.text, e.language,
+                   rel.name if rel else "", reply.expect_confirm)
+    return {"ok": True}
+
+
+@app.post("/api/elder/photo")
+def elder_photo(ident: Identity = Depends(current_identity)):
+    """Ask the elder to send a screen photo, in their chat."""
+    if ident.role != "elder":
+        raise HTTPException(status_code=404)
+    e = ident.elder
+    rel = store.get_trusted_relative(e.id)
+    _send_to_elder(e.telegram_id, t("ask_photo", e.language), e.language,
+                   rel.name if rel else "", False)
+    return {"ok": True}
 
 
 # ---------------- relative dashboard ----------------

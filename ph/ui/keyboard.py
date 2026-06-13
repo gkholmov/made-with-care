@@ -68,3 +68,28 @@ def match_confirm(label: str, language: str) -> str | None:
     if s == no:
         return "no"
     return None
+
+
+# ---- shared keyboard layout (one source of truth for chat + web sender) ----
+def keyboard_rows(language: str, relative_name: str = "", expect_confirm: bool = False,
+                  webapp_url: str = "") -> list:
+    """Home-keyboard rows as plain button specs: each button is {"text": str} plus an
+    optional {"web_app": {"url": str}}. Pure (no Telegram import) so both the Telegram
+    adapter and the web server's raw sendMessage call build the SAME keyboard — this
+    dict shape is exactly Telegram's KeyboardButton JSON."""
+    labels = button_labels(language, relative_name)
+    tl = topic_labels(language)
+    rows = [
+        [{"text": labels[0]}],                         # 🎙️ tell the problem
+        [{"text": labels[1]}],                         # 📷 show the screen
+        [{"text": labels[2]}],                         # 📞 call relative
+        [{"text": tl[0]}, {"text": tl[1]}],            # 📶 internet | 🔑 password
+        [{"text": tl[2]}, {"text": tl[3]}],            # 📱 updated  | 🔍 easier
+        [{"text": tl[4]}],                             # ⚠️ suspicious message
+    ]
+    if webapp_url:
+        rows.insert(0, [{"text": t("btn_open_app", language), "web_app": {"url": webapp_url}}])
+    if expect_confirm:
+        cl = confirm_labels(language)
+        rows.insert(0, [{"text": cl[0]}, {"text": cl[1]}])
+    return rows
