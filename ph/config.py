@@ -30,6 +30,17 @@ def _get(name: str, default: str = "") -> str:
     return os.environ.get(name, default).strip()
 
 
+def _default_webapp_url() -> str:
+    """Public Mini App URL. Explicit WEBAPP_URL wins; otherwise derive it from the
+    host's injected vars — Render: RENDER_EXTERNAL_URL; Fly: https://<FLY_APP_NAME>.fly.dev —
+    so the Mini App needs no manual URL wiring on either host."""
+    explicit = _get("WEBAPP_URL") or _get("RENDER_EXTERNAL_URL")
+    if explicit:
+        return explicit
+    fly_app = _get("FLY_APP_NAME")
+    return f"https://{fly_app}.fly.dev" if fly_app else ""
+
+
 @dataclass(frozen=True)
 class Settings:
     telegram_token: str = _get("TELEGRAM_BOT_TOKEN")
@@ -58,10 +69,9 @@ class Settings:
     retention_days: int = int(_get("DATA_RETENTION_DAYS", "30") or "30")
     log_level: str = _get("LOG_LEVEL", "INFO")
 
-    # Telegram Mini App (webapp). Empty WEBAPP_URL = all webapp features disabled.
-    # Falls back to RENDER_EXTERNAL_URL / PORT, which Render injects automatically,
-    # so the Mini App needs no manual URL/port wiring on that host.
-    webapp_url: str = _get("WEBAPP_URL") or _get("RENDER_EXTERNAL_URL")
+    # Telegram Mini App (webapp). Empty = all webapp features disabled. URL/port are
+    # auto-derived from the host (Render PORT/RENDER_EXTERNAL_URL, Fly FLY_APP_NAME).
+    webapp_url: str = _default_webapp_url()
     webapp_port: int = int(_get("WEBAPP_PORT") or _get("PORT") or "8081")
     webapp_dist: str = _get("WEBAPP_DIST", "webapp/dist")
     webapp_auth_max_age: int = int(_get("WEBAPP_AUTH_MAX_AGE", "3600") or "3600")
