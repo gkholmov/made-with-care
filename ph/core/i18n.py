@@ -26,6 +26,12 @@ STR = {
     # Opens the Telegram Mini App (shown only when WEBAPP_URL is configured).
     "btn_open_app": {"en": "🟢 Open my helper", "ru": "🟢 Открыть помощника",
                      "de": "🟢 Helfer öffnen"},
+    # Shown when the bot acts purely as the Mini App launcher.
+    "open_in_app": {
+        "en": "Tap the green button below to open your helper 👇",
+        "ru": "Нажмите зелёную кнопку ниже, чтобы открыть помощника 👇",
+        "de": "Tippen Sie unten auf die grüne Taste, um Ihren Helfer zu öffnen 👇",
+    },
     # Confirmation buttons shown after a "did it work?" step. The words are chosen so
     # intent.sentiment() still classifies them correctly if a tap arrives as raw text.
     "btn_yes_done": {"en": "✅ It worked", "ru": "✅ Получилось", "de": "✅ Hat geklappt"},

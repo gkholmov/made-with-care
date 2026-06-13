@@ -93,11 +93,13 @@ export default function ElderShell({ lang: fallbackLang }: { lang: Lang }) {
         text: t(yes ? "conf_worked" : "conf_not_yet", lang),
       },
     );
-  const sendPhoto = () => {
+  const sendPhoto = (file?: File) => {
     setView("conversation");
+    const image = file ? URL.createObjectURL(file) : undefined;
     void drive(() => api.post<ReplyEnvelope>("/api/elder/photo", {}), {
       role: "me",
       text: t("conv_photo_sent", lang),
+      image,
     });
   };
 

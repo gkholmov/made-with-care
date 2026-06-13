@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Reply } from "../../lib/api";
 import { Lang, t } from "../../lib/i18n";
 
-export type Msg = { role: "bot" | "me"; text: string };
+export type Msg = { role: "bot" | "me"; text: string; image?: string };
 
 const TERMINAL = ["resolved", "escalated", "safety_stop"];
 
@@ -34,7 +34,7 @@ export default function Conversation({
   onSend: (text: string) => void;
   onConfirm: (yes: boolean) => void;
   onMic: () => void;
-  onPhoto: () => void;
+  onPhoto: (file: File) => void;
   onCall: () => void;
   onGoHome: () => void;
   onFinish: () => void;
@@ -72,7 +72,7 @@ export default function Conversation({
       <div className="flex-1 overflow-y-auto px-3 py-4">
         <div className="mx-auto flex max-w-md flex-col gap-3">
           {messages.map((m, i) => (
-            <Bubble key={i} role={m.role} text={m.text} />
+            <Bubble key={i} role={m.role} text={m.text} image={m.image} />
           ))}
           {pending && (
             <Bubble
@@ -138,14 +138,29 @@ export default function Conversation({
                 {recording ? t("recording", lang) : t("tell_problem", lang)}
               </button>
               <div className="flex items-end gap-2">
-                <button
-                  disabled={pending}
-                  onClick={onPhoto}
+                <label
                   aria-label={t("photo_hint", lang)}
-                  className="min-h-touch shrink-0 rounded-2xl bg-tg-secondary-bg px-4 text-2xl active:opacity-70 disabled:opacity-40"
+                  className={
+                    "flex min-h-touch shrink-0 items-center rounded-2xl bg-tg-secondary-bg px-4 text-2xl active:opacity-70 " +
+                    (pending
+                      ? "pointer-events-none opacity-40"
+                      : "cursor-pointer")
+                  }
                 >
                   📷
-                </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    hidden
+                    disabled={pending}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) onPhoto(f);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
                 <textarea
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
@@ -172,10 +187,12 @@ export default function Conversation({
 function Bubble({
   role,
   text,
+  image,
   muted,
 }: {
   role: "bot" | "me";
   text: string;
+  image?: string;
   muted?: boolean;
 }) {
   const me = role === "me";
@@ -189,6 +206,9 @@ function Bubble({
             : "bg-tg-secondary-bg " + (muted ? "text-tg-hint" : ""))
         }
       >
+        {image && (
+          <img src={image} alt="" className="mb-2 max-h-60 rounded-xl" />
+        )}
         {text}
       </div>
     </div>

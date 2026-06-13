@@ -21,7 +21,7 @@ export default function Home({
   onResume: () => void;
   onTopic: (key: string) => void;
   onMic: () => void;
-  onPhoto: () => void;
+  onPhoto: (file: File) => void;
   onCall: () => void;
 }) {
   return (
@@ -69,12 +69,20 @@ export default function Home({
       </div>
 
       <div className="mt-auto flex flex-col gap-3 pb-4">
-        <button
-          onClick={onPhoto}
-          className="min-h-touch w-full rounded-2xl bg-tg-secondary-bg px-5 text-elder-lg font-semibold active:opacity-70"
-        >
+        <label className="flex min-h-touch w-full cursor-pointer items-center justify-center rounded-2xl bg-tg-secondary-bg px-5 text-elder-lg font-semibold active:opacity-70">
           {t("photo_hint", lang)}
-        </button>
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            hidden
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) onPhoto(f);
+              e.target.value = "";
+            }}
+          />
+        </label>
         {home.relative.telegram_id && (
           <button
             onClick={onCall}

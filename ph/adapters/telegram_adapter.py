@@ -38,11 +38,19 @@ def _notifier() -> Notifier:
 
 def _keyboard(language: str, relative_name: str = "",
               expect_confirm: bool = False) -> ReplyKeyboardMarkup:
-    # Layout lives in ph.ui.keyboard.keyboard_rows (shared with the web sender); here we
-    # just turn the plain button specs into Telegram objects.
+    # When the Mini App is configured, the bot is just its launcher: one big "Open my
+    # helper" button (+ a Call button for emergencies). All the help happens in the app.
+    if settings.webapp_url:
+        name = relative_name or {"en": "family", "ru": "родным", "de": "Familie"}.get(language, "family")
+        rows = [[KeyboardButton(t("btn_open_app", language),
+                                web_app=WebAppInfo(url=settings.webapp_url))],
+                [KeyboardButton(t("btn_call", language, name=name))]]
+        return ReplyKeyboardMarkup(rows, resize_keyboard=True, is_persistent=True,
+                                   one_time_keyboard=False)
+    # No Mini App configured -> full in-chat keyboard (layout from ph.ui.keyboard).
     rows = []
     for spec_row in keyboard_rows(language, relative_name, expect_confirm=expect_confirm,
-                                  webapp_url=settings.webapp_url):
+                                  webapp_url=""):
         row = []
         for btn in spec_row:
             if "web_app" in btn:
@@ -166,7 +174,20 @@ async def _drive(update: Update, text: str, modality: str, photo_present: bool =
     return reply.text, e.language
 
 
+async def _launch_nudge(update: Update, e, rel) -> None:
+    """In launcher mode the bot doesn't run the playbook in chat — it points the elder
+    to the Mini App, where the whole conversation lives."""
+    await update.message.reply_text(
+        t("open_in_app", e.language),
+        reply_markup=_keyboard(e.language, rel.name if rel else ""))
+
+
 async def on_voice(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    if settings.webapp_url:  # bot is just the launcher; voice help happens in the app
+        e, rel = _elder_ctx(update.effective_user.id)
+        if e:
+            await _launch_nudge(update, e, rel)
+            return
     try:  # STT adds a few seconds before _drive shows its own indicator
         await update.effective_chat.send_action(ChatAction.TYPING)
     except Exception:
@@ -188,6 +209,11 @@ async def on_voice(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 
 async def on_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    if settings.webapp_url:  # bot is just the launcher; the screen photo goes in the app
+        e, rel = _elder_ctx(update.effective_user.id)
+        if e:
+            await _launch_nudge(update, e, rel)
+            return
     # Screen photo: in production the image is passed to the vision LLM. MVP flags its presence.
     await _drive(update, "(sent a photo of the screen)", "photo", photo_present=True)
 
@@ -197,6 +223,23 @@ async def on_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     text = update.message.text or ""
     # Is it one of the 3 buttons?
     if e:
+        # The Call button always works, even in launcher mode (it's an emergency action).
+        is_call = any(match_button(text, lng, rel.name if rel else "") == "call"
+                      for lng in dict.fromkeys((e.language, *settings.supported_langs)))
+        if is_call:
+            if rel and rel.telegram_id:
+                kb = InlineKeyboardMarkup([[InlineKeyboardButton(
+                    f"📞 {rel.name}", url=f"tg://user?id={rel.telegram_id}")]])
+                await update.message.reply_text("Tap to open the chat, then press the call button:",
+                                                reply_markup=kb)
+            else:
+                await update.message.reply_text("I'll let your family know to call you.")
+                orchestrator.handle(e.id, e.name, e.language, "please call me", notifier=_notifier())
+            return
+        # Mini App configured -> the bot is just its launcher; send help into the app.
+        if settings.webapp_url:
+            await _launch_nudge(update, e, rel)
+            return
         # ✅/❌ confirm tap -> canonical yes/no for the brain. Matched in any supported
         # language (the on-screen keyboard may show stale-language labels).
         ans = None
