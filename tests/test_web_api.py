@@ -132,6 +132,22 @@ class TestWebApi(Base):
         turns = store.conversation_turns(eid)
         self.assertTrue(any(m == "photo" for (_d, m, _t) in turns))
 
+    def test_elder_voice_transcribes_and_drives(self):
+        import base64
+        from ph.db import store
+        eid, rel = self.make_elder(tg_id=1001)  # StubSTT → "My wifi is not working"
+        clip = base64.b64encode(b"fake-audio-bytes").decode()
+        r = self.client.post("/api/elder/voice", headers=self.auth(1001),
+                             json={"audio_b64": clip, "mime": "audio/webm"})
+        self.assertEqual(r.status_code, 200)
+        body = r.json()
+        self.assertEqual(body["transcript"], "My wifi is not working")
+        self.assertEqual(body["reply"]["state"], "active")
+        self.assertEqual(store.active_session(eid).scenario, "wifi")
+        bad = self.client.post("/api/elder/voice", headers=self.auth(1001),
+                               json={"audio_b64": "!!not-base64!!", "mime": "audio/webm"})
+        self.assertEqual(bad.status_code, 400)
+
     def test_elder_conversation_history_and_empty(self):
         eid, rel = self.make_elder(tg_id=1001)
         empty = self.client.get("/api/elder/conversation", headers=self.auth(1001)).json()

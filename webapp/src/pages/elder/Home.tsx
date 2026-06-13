@@ -1,18 +1,26 @@
 import { ElderHome } from "../../lib/api";
 import { Lang, t } from "../../lib/i18n";
 
-/** Presentational topic launcher. All actions are passed in by ElderShell, which
- * owns the conversation state. Huge, stable, no motion. */
+/** Presentational launcher: voice, key problems, screen, call. ElderShell owns all
+ * the actions and the conversation state. Huge, stable, no motion. */
 export default function Home({
   lang,
   home,
+  ongoing,
+  recording,
+  onResume,
   onTopic,
+  onMic,
   onPhoto,
   onCall,
 }: {
   lang: Lang;
   home: ElderHome;
+  ongoing: boolean;
+  recording: boolean;
+  onResume: () => void;
   onTopic: (key: string) => void;
+  onMic: () => void;
   onPhoto: () => void;
   onCall: () => void;
 }) {
@@ -25,6 +33,28 @@ export default function Home({
       <p className="text-center text-elder-base text-tg-hint">
         {t("what_help", lang)}
       </p>
+
+      {ongoing && (
+        <button
+          onClick={onResume}
+          className="min-h-touch w-full rounded-2xl border-4 border-tg-button bg-tg-bg px-5 text-elder-lg font-bold text-tg-button active:opacity-70"
+        >
+          {t("continue_chat", lang)}
+        </button>
+      )}
+
+      {/* Voice first — the primary way to ask for help. */}
+      <button
+        onClick={onMic}
+        className={
+          "min-h-touch w-full rounded-2xl px-5 text-elder-lg font-bold active:opacity-70 " +
+          (recording
+            ? "bg-red-500 text-white"
+            : "bg-tg-button text-tg-button-text")
+        }
+      >
+        {recording ? t("recording", lang) : t("tell_problem", lang)}
+      </button>
 
       <div className="flex flex-col gap-3">
         {home.topics.map((topic) => (
@@ -41,7 +71,7 @@ export default function Home({
       <div className="mt-auto flex flex-col gap-3 pb-4">
         <button
           onClick={onPhoto}
-          className="min-h-touch w-full rounded-2xl bg-tg-button px-5 text-elder-lg font-bold text-tg-button-text active:opacity-70"
+          className="min-h-touch w-full rounded-2xl bg-tg-secondary-bg px-5 text-elder-lg font-semibold active:opacity-70"
         >
           {t("photo_hint", lang)}
         </button>

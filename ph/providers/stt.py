@@ -31,7 +31,12 @@ class OpenAISTT(STT):
 
     def transcribe(self, audio_bytes: bytes, mime: str = "audio/ogg") -> Tuple[str, str]:
         import io
-        f = io.BytesIO(audio_bytes); f.name = "audio.ogg"
+        # The filename extension tells the API the container format. Mini App
+        # recordings arrive as webm (Android/Chrome) or mp4/m4a (iOS Safari).
+        ext = {"audio/webm": "webm", "audio/ogg": "ogg", "audio/mp4": "mp4",
+               "audio/mpeg": "mp3", "audio/wav": "wav", "audio/x-m4a": "m4a",
+               "audio/m4a": "m4a"}.get(mime.split(";")[0].strip(), "ogg")
+        f = io.BytesIO(audio_bytes); f.name = f"audio.{ext}"
         r = self._client.audio.transcriptions.create(model=self._model, file=f)
         lang = getattr(r, "language", "") or ""
         return (r.text.strip(), lang)

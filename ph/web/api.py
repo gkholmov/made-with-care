@@ -25,7 +25,7 @@ from ph.core import orchestrator
 from ph.core.i18n import t
 from ph.db import store
 from ph.notifications import Notifier
-from ph.providers import get_email
+from ph.providers import get_email, get_stt
 from ph.ui.keyboard import TOPIC_ORDER, TOPIC_TRIGGERS
 from ph.web.auth import InitDataError, validate_init_data
 
@@ -193,6 +193,31 @@ def elder_photo(ident: Identity = Depends(current_identity)):
     reply = orchestrator.handle(e.id, e.name, e.language, "(sent a photo of the screen)",
                                 modality="photo", photo_present=True, notifier=_web_notifier())
     return _reply_json(reply)
+
+
+class VoiceBody(BaseModel):
+    audio_b64: str = Field(min_length=1)
+    mime: str = "audio/webm"
+
+
+@app.post("/api/elder/voice")
+def elder_voice(body: VoiceBody, ident: Identity = Depends(current_identity)):
+    """Voice input: transcribe the clip, then drive the playbook with the text.
+    Returns the transcript (shown as the elder's bubble) plus the reply."""
+    import base64
+    e = _elder(ident)
+    try:
+        audio = base64.b64decode(body.audio_b64)
+    except Exception:
+        raise HTTPException(status_code=400, detail="bad audio")
+    text, _lang = get_stt().transcribe(audio, body.mime)
+    if not text.strip():
+        raise HTTPException(status_code=422, detail="empty transcript")
+    reply = orchestrator.handle(e.id, e.name, e.language, text, modality="voice",
+                                notifier=_web_notifier())
+    out = _reply_json(reply)
+    out["transcript"] = text
+    return out
 
 
 @app.get("/api/elder/conversation")

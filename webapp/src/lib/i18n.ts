@@ -51,6 +51,23 @@ const STR: Record<string, Record<Lang, string>> = {
     de: "Bitte erneut versuchen.",
   },
   done_title: { en: "All done! 🎉", ru: "Готово! 🎉", de: "Fertig! 🎉" },
+  tell_problem: {
+    en: "🎙️ Tell me the problem",
+    ru: "🎙️ Расскажите, что случилось",
+    de: "🎙️ Sagen Sie, was los ist",
+  },
+  recording: {
+    en: "● Recording… tap to send",
+    ru: "● Запись… нажмите, чтобы отправить",
+    de: "● Aufnahme… tippen zum Senden",
+  },
+  mic_error: {
+    en: "I couldn't use the microphone. Please allow it, or type instead.",
+    ru: "Не удалось включить микрофон. Разрешите доступ или напишите текстом.",
+    de: "Mikrofon nicht verfügbar. Bitte erlauben oder tippen.",
+  },
+  transcribing: { en: "Listening…", ru: "Слушаю…", de: "Höre zu…" },
+  continue_chat: { en: "▶️ Continue", ru: "▶️ Продолжить", de: "▶️ Weiter" },
   dashboard: {
     en: "Family dashboard",
     ru: "Семейная панель",

@@ -74,6 +74,7 @@ export interface Reply {
 
 export interface ReplyEnvelope {
   reply: Reply;
+  transcript?: string;
 }
 
 export interface ConvTurn {
