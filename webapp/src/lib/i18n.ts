@@ -1,0 +1,196 @@
+/** Webapp-only strings (en/ru/de). Topic/button labels for the elder face come
+ * from the API (single source of truth: ph/core/i18n.py) — this dict holds only
+ * strings that exist purely in the Mini App. */
+
+export type Lang = "en" | "ru" | "de";
+
+const STR: Record<string, Record<Lang, string>> = {
+  hello: { en: "Hello", ru: "Здравствуйте", de: "Hallo" },
+  what_help: {
+    en: "What do you need help with?",
+    ru: "С чем вам помочь?",
+    de: "Wobei kann ich helfen?",
+  },
+  show_screen: {
+    en: "Show my screen",
+    ru: "Показать экран",
+    de: "Bildschirm zeigen",
+  },
+  call: { en: "Call", ru: "Позвонить", de: "Anrufen" },
+  dashboard: {
+    en: "Family dashboard",
+    ru: "Семейная панель",
+    de: "Familien-Übersicht",
+  },
+  your_elders: {
+    en: "Your relatives",
+    ru: "Ваши близкие",
+    de: "Ihre Angehörigen",
+  },
+  add_elder: {
+    en: "Set up help for a relative",
+    ru: "Настроить помощь для близкого",
+    de: "Hilfe für Angehörige einrichten",
+  },
+  alerts: { en: "alerts", ru: "уведомл.", de: "Warnungen" },
+  not_claimed: {
+    en: "Link not opened yet",
+    ru: "Ссылка ещё не открыта",
+    de: "Link noch nicht geöffnet",
+  },
+  recent_activity: {
+    en: "Recent activity",
+    ru: "Недавняя активность",
+    de: "Letzte Aktivität",
+  },
+  sessions: {
+    en: "Help sessions",
+    ru: "Обращения за помощью",
+    de: "Hilfe-Sitzungen",
+  },
+  no_activity: {
+    en: "No activity yet.",
+    ru: "Пока нет активности.",
+    de: "Noch keine Aktivität.",
+  },
+  settings: { en: "Settings", ru: "Настройки", de: "Einstellungen" },
+  language: { en: "Language", ru: "Язык", de: "Sprache" },
+  phone: { en: "Phone", ru: "Телефон", de: "Handy" },
+  phone_age: {
+    en: "Phone age",
+    ru: "Возраст телефона",
+    de: "Alter des Handys",
+  },
+  save: { en: "Save", ru: "Сохранить", de: "Speichern" },
+  saved: { en: "Saved ✓", ru: "Сохранено ✓", de: "Gespeichert ✓" },
+  share_link: {
+    en: "Share the link",
+    ru: "Отправить ссылку",
+    de: "Link teilen",
+  },
+  join_link_hint: {
+    en: "Send this personal link to your relative — when they tap it, the helper introduces itself.",
+    ru: "Отправьте эту личную ссылку близкому — когда они её откроют, помощник представится.",
+    de: "Senden Sie diesen persönlichen Link an Ihren Angehörigen — beim Öffnen stellt sich der Helfer vor.",
+  },
+  wizard_title: {
+    en: "Set up the helper",
+    ru: "Настройка помощника",
+    de: "Helfer einrichten",
+  },
+  w_name: {
+    en: "Your relative's first name",
+    ru: "Имя вашего близкого",
+    de: "Vorname Ihres Angehörigen",
+  },
+  w_lang: {
+    en: "Which language should the helper speak?",
+    ru: "На каком языке говорить помощнику?",
+    de: "Welche Sprache soll der Helfer sprechen?",
+  },
+  w_os: {
+    en: "What phone do they have?",
+    ru: "Какой у них телефон?",
+    de: "Welches Handy haben sie?",
+  },
+  w_age: {
+    en: "Is it fairly new or quite old?",
+    ru: "Он новый или старый?",
+    de: "Ist es eher neu oder alt?",
+  },
+  w_email: {
+    en: "Your email for urgent alerts (optional)",
+    ru: "Ваш email для срочных уведомлений (необязательно)",
+    de: "Ihre E-Mail für dringende Warnungen (optional)",
+  },
+  w_new: { en: "New", ru: "Новый", de: "Neu" },
+  w_old: { en: "Old", ru: "Старый", de: "Alt" },
+  create_link: {
+    en: "Create the link",
+    ru: "Создать ссылку",
+    de: "Link erstellen",
+  },
+  unknown_title: {
+    en: "This helper is set up by family",
+    ru: "Помощника настраивают близкие",
+    de: "Dieser Helfer wird von der Familie eingerichtet",
+  },
+  unknown_body: {
+    en: "If your family set this up for you, please open the personal link they sent you.",
+    ru: "Если близкие настроили помощника для вас, откройте личную ссылку, которую они прислали.",
+    de: "Wenn Ihre Familie dies für Sie eingerichtet hat, öffnen Sie bitte den persönlichen Link, den sie Ihnen geschickt hat.",
+  },
+  unknown_cta: {
+    en: "I want to set this up for my parent",
+    ru: "Я хочу настроить это для родителя",
+    de: "Ich möchte das für meine Eltern einrichten",
+  },
+  loading: { en: "Loading…", ru: "Загрузка…", de: "Lädt…" },
+  error: {
+    en: "Something went wrong. Please reopen the app.",
+    ru: "Что-то пошло не так. Откройте приложение заново.",
+    de: "Etwas ist schiefgelaufen. Bitte öffnen Sie die App erneut.",
+  },
+  back: { en: "Back", ru: "Назад", de: "Zurück" },
+  // event types
+  ev_resolved: {
+    en: "Problem solved",
+    ru: "Проблема решена",
+    de: "Problem gelöst",
+  },
+  ev_escalation: {
+    en: "Asked for your help",
+    ru: "Понадобилась ваша помощь",
+    de: "Ihre Hilfe wurde gebraucht",
+  },
+  ev_safety_stop: {
+    en: "⚠️ Safety stop (possible scam)",
+    ru: "⚠️ Остановка безопасности (возможно, мошенники)",
+    de: "⚠️ Sicherheitsstopp (möglicher Betrug)",
+  },
+  ev_scam_flag: {
+    en: "⚠️ Checked a suspicious message",
+    ru: "⚠️ Проверка подозрительного сообщения",
+    de: "⚠️ Verdächtige Nachricht geprüft",
+  },
+  ev_settings_changed: {
+    en: "Settings changed",
+    ru: "Настройки изменены",
+    de: "Einstellungen geändert",
+  },
+  // scenarios
+  sc_wifi: { en: "Internet", ru: "Интернет", de: "Internet" },
+  sc_password: { en: "Password", ru: "Пароль", de: "Passwort" },
+  sc_os_update: {
+    en: "Phone update",
+    ru: "Обновление телефона",
+    de: "Handy-Update",
+  },
+  sc_setup: {
+    en: "Make it easier",
+    ru: "Настройка удобства",
+    de: "Einfacher machen",
+  },
+  sc_scam: {
+    en: "Suspicious message",
+    ru: "Подозрительное сообщение",
+    de: "Verdächtige Nachricht",
+  },
+  sc_unknown: { en: "Other", ru: "Другое", de: "Sonstiges" },
+  st_active: { en: "in progress", ru: "в процессе", de: "läuft" },
+  st_resolved: { en: "solved", ru: "решено", de: "gelöst" },
+  st_escalated: {
+    en: "needed family",
+    ru: "нужна семья",
+    de: "Familie gebraucht",
+  },
+  st_closed: { en: "closed", ru: "закрыто", de: "geschlossen" },
+};
+
+export function normLang(raw: string | undefined): Lang {
+  return raw === "ru" || raw === "de" ? raw : "en";
+}
+
+export function t(key: string, lang: Lang): string {
+  return STR[key]?.[lang] ?? STR[key]?.en ?? key;
+}
