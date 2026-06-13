@@ -1,0 +1,45 @@
+# Render Blueprint: one Docker web service running BOTH the bot (long-polling)
+# and the Mini App web server, sharing a SQLite file on a persistent disk.
+# Deploy: render.com -> New -> Blueprint -> pick this repo -> enter the 3 secrets.
+services:
+  - type: web
+    name: made-with-care
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter                 # required for a persistent disk + always-on (no sleep)
+    region: frankfurt             # pick the region nearest your users
+    healthCheckPath: /healthz
+    autoDeploy: true              # redeploy on every push to the default branch
+    numInstances: 1               # single instance: exactly one bot poller, one disk
+    disk:
+      name: ph-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      # Render injects PORT (web server binds it) and RENDER_EXTERNAL_URL
+      # (becomes WEBAPP_URL) automatically — see ph/config.py.
+      - key: WEBAPP_DIST
+        value: webapp/dist
+      - key: DATABASE_URL
+        value: sqlite:////data/parent_helper.db
+      - key: LLM_PROVIDER
+        value: anthropic
+      - key: LLM_MODEL
+        value: claude-opus-4-8
+      - key: STT_PROVIDER
+        value: openai
+      - key: TTS_PROVIDER
+        value: openai
+      - key: TTS_VOICE
+        value: alloy
+      - key: TELEGRAM_BOT_USERNAME
+        value: made_with_care_bot
+      - key: LOG_LEVEL
+        value: INFO
+      # Secrets — Render prompts for these in the dashboard (never stored in git):
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false

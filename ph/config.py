@@ -59,8 +59,10 @@ class Settings:
     log_level: str = _get("LOG_LEVEL", "INFO")
 
     # Telegram Mini App (webapp). Empty WEBAPP_URL = all webapp features disabled.
-    webapp_url: str = _get("WEBAPP_URL")
-    webapp_port: int = int(_get("WEBAPP_PORT", "8081") or "8081")
+    # Falls back to RENDER_EXTERNAL_URL / PORT, which Render injects automatically,
+    # so the Mini App needs no manual URL/port wiring on that host.
+    webapp_url: str = _get("WEBAPP_URL") or _get("RENDER_EXTERNAL_URL")
+    webapp_port: int = int(_get("WEBAPP_PORT") or _get("PORT") or "8081")
     webapp_dist: str = _get("WEBAPP_DIST", "webapp/dist")
     webapp_auth_max_age: int = int(_get("WEBAPP_AUTH_MAX_AGE", "3600") or "3600")
     webapp_insecure_dev: bool = _get("WEBAPP_INSECURE_DEV") == "1"
