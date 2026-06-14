@@ -1,37 +1,10 @@
 import { ElderHome } from "../../lib/api";
 import { Lang, t } from "../../lib/i18n";
+import { ActionButton, PhotoPicker, SectionLabel } from "../../components/ui";
 
-/** A full-width photo tile. `capture` forces the camera; without it the OS shows the
- * gallery / file chooser so the elder can upload any existing image. */
-function PhotoTile({
-  label,
-  capture,
-  onPhoto,
-}: {
-  label: string;
-  capture?: boolean;
-  onPhoto: (file: File) => void;
-}) {
-  return (
-    <label className="flex min-h-touch w-full cursor-pointer items-center justify-center rounded-2xl bg-tg-secondary-bg px-5 text-elder-lg font-semibold active:opacity-70">
-      {label}
-      <input
-        type="file"
-        accept="image/*"
-        {...(capture ? { capture: "environment" as const } : {})}
-        hidden
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) onPhoto(f);
-          e.target.value = "";
-        }}
-      />
-    </label>
-  );
-}
-
-/** Presentational launcher: voice, key problems, screen, call. ElderShell owns all
- * the actions and the conversation state. Huge, stable, no motion. */
+/** Talk-first launcher: one dominant "talk" action, a single "show my screen", a
+ * clearly-labeled list of common problems, and a persistent "Call my family" footer.
+ * Presentational — ElderShell owns all the actions and conversation state. */
 export default function Home({
   lang,
   home,
@@ -53,62 +26,75 @@ export default function Home({
   onPhoto: (file: File) => void;
   onCall: () => void;
 }) {
+  const firstRun = !localStorage.getItem("ph_seen_home");
+  if (firstRun) localStorage.setItem("ph_seen_home", "1");
+
   return (
     <div className="elder mx-auto flex min-h-screen max-w-md flex-col gap-4 p-4">
       <h1 className="pt-2 text-center text-elder-xl font-bold">
         {t("hello", lang)}
-        {home.name ? `, ${home.name}` : ""}!
+        {home.name ? `, ${home.name}` : ""}
       </h1>
       <p className="text-center text-elder-base text-tg-hint">
-        {t("what_help", lang)}
+        {t("how_help", lang)}
       </p>
 
-      {ongoing && (
-        <button
-          onClick={onResume}
-          className="min-h-touch w-full rounded-2xl border-4 border-tg-button bg-tg-bg px-5 text-elder-lg font-bold text-tg-button active:opacity-70"
-        >
-          {t("continue_chat", lang)}
-        </button>
+      {firstRun && !ongoing && (
+        <p className="rounded-2xl bg-tg-secondary-bg p-4 text-center text-elder-base text-tg-hint">
+          {t("first_run_hint", lang)}
+        </p>
       )}
 
-      {/* Voice first — the primary way to ask for help. */}
-      <button
-        onClick={onMic}
-        className={
-          "min-h-touch w-full rounded-2xl px-5 text-elder-lg font-bold active:opacity-70 " +
-          (recording
-            ? "bg-red-500 text-white"
-            : "bg-tg-button text-tg-button-text")
-        }
-      >
-        {recording ? t("recording", lang) : t("tell_problem", lang)}
-      </button>
+      {ongoing && (
+        <ActionButton
+          variant="ghost"
+          size="lg"
+          label={t("continue_chat", lang)}
+          onClick={onResume}
+        />
+      )}
 
+      {/* Primary: talk to me. */}
+      <ActionButton
+        variant={recording ? "danger" : "primary"}
+        size="lg"
+        label={recording ? t("recording", lang) : t("tell_problem", lang)}
+        onClick={onMic}
+      />
+
+      {/* One photo control — the OS lets them take a photo OR pick from the gallery. */}
+      <PhotoPicker
+        variant="secondary"
+        size="lg"
+        label={t("show_my_screen", lang)}
+        onFile={onPhoto}
+      />
+
+      <SectionLabel>{t("pick_problem", lang)}</SectionLabel>
       <div className="flex flex-col gap-3">
         {home.topics.map((topic) => (
-          <button
+          <ActionButton
             key={topic.key}
+            variant="secondary"
+            size="md"
+            align="start"
+            label={topic.label}
             onClick={() => onTopic(topic.key)}
-            className="min-h-touch w-full rounded-2xl bg-tg-secondary-bg px-5 text-left text-elder-lg font-semibold active:opacity-70"
-          >
-            {topic.label}
-          </button>
+          />
         ))}
       </div>
 
-      <div className="mt-auto flex flex-col gap-3 pb-4">
-        <PhotoTile label={t("photo_hint", lang)} capture onPhoto={onPhoto} />
-        <PhotoTile label={t("gallery", lang)} onPhoto={onPhoto} />
-        {home.relative.telegram_id && (
-          <button
+      {/* Persistent footer — always last, always in the same place. */}
+      {home.relative.telegram_id && (
+        <div className="mt-auto pt-2">
+          <ActionButton
+            variant="ghost"
+            size="lg"
+            label={t("call_family", lang)}
             onClick={onCall}
-            className="min-h-touch w-full rounded-2xl border-4 border-tg-button px-5 text-elder-lg font-bold text-tg-button active:opacity-70"
-          >
-            📞 {t("call", lang)} {home.relative.name}
-          </button>
-        )}
-      </div>
+          />
+        </div>
+      )}
     </div>
   );
 }

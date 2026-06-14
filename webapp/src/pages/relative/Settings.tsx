@@ -37,7 +37,7 @@ export default function Settings({
 
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col gap-5 p-4">
-      <h1 className="pt-2 text-2xl font-bold">
+      <h1 className="pt-2 text-elder-xl font-bold">
         ⚙️ {detail.name} — {t("settings", lang)}
       </h1>
 
@@ -79,7 +79,7 @@ export default function Settings({
       </Section>
 
       {saved && (
-        <p className="text-center font-medium text-green-600">
+        <p className="text-center text-elder-base font-semibold text-success">
           {t("saved", lang)}
         </p>
       )}
@@ -123,7 +123,7 @@ function Row({
           disabled={busy}
           onClick={() => onPick(v)}
           className={
-            "min-h-12 flex-1 rounded-xl font-medium active:opacity-70 disabled:opacity-40 " +
+            "min-h-touch flex-1 rounded-2xl text-elder-base font-semibold active:opacity-70 disabled:opacity-40 " +
             (v === value
               ? "bg-tg-button text-tg-button-text"
               : "bg-tg-secondary-bg")

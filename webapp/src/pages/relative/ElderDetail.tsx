@@ -7,6 +7,7 @@ import {
   EventFeed,
   SessionList,
 } from "../../components/ActivityFeed";
+import { ActionButton, SectionLabel } from "../../components/ui";
 
 export default function ElderDetail({
   lang,
@@ -51,11 +52,11 @@ export default function ElderDetail({
 
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col gap-4 p-4">
-      <div className="flex items-center justify-between pt-2">
-        <h1 className="text-2xl font-bold">{detail.name}</h1>
+      <div className="flex items-center justify-between gap-3 pt-2">
+        <h1 className="text-elder-xl font-bold">{detail.name}</h1>
         <button
           onClick={onSettings}
-          className="rounded-xl bg-tg-secondary-bg px-4 py-2 font-medium active:opacity-70"
+          className="shrink-0 rounded-xl bg-tg-secondary-bg px-4 py-3 text-elder-base font-semibold active:opacity-70"
         >
           ⚙️ {t("settings", lang)}
         </button>
@@ -63,26 +64,22 @@ export default function ElderDetail({
 
       {!detail.claimed && detail.join_link && (
         <div className="rounded-2xl bg-tg-secondary-bg p-4">
-          <p className="mb-3 text-sm">{t("join_link_hint", lang)}</p>
-          <button
+          <p className="mb-3 text-elder-base">{t("join_link_hint", lang)}</p>
+          <ActionButton
+            variant="primary"
+            size="md"
+            label={t("share_link", lang)}
             onClick={shareJoinLink}
-            className="min-h-12 w-full rounded-xl bg-tg-button font-semibold text-tg-button-text active:opacity-70"
-          >
-            {t("share_link", lang)}
-          </button>
+          />
         </div>
       )}
 
       <AlertBanner events={events} lang={lang} />
 
-      <h2 className="text-sm font-medium uppercase tracking-wide text-tg-hint">
-        {t("recent_activity", lang)}
-      </h2>
+      <SectionLabel>{t("recent_activity", lang)}</SectionLabel>
       <EventFeed events={events} lang={lang} />
 
-      <h2 className="text-sm font-medium uppercase tracking-wide text-tg-hint">
-        {t("sessions", lang)}
-      </h2>
+      <SectionLabel>{t("sessions", lang)}</SectionLabel>
       <SessionList sessions={sessions} lang={lang} />
     </div>
   );

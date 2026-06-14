@@ -23,6 +23,10 @@ export default function ElderShell({ lang: fallbackLang }: { lang: Lang }) {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [reply, setReply] = useState<Reply | null>(null);
   const [pending, setPending] = useState(false);
+  const [topicTitle, setTopicTitle] = useState("");
+  const [pendingKind, setPendingKind] = useState<"text" | "voice" | "photo">(
+    "text",
+  );
   const recorder = useRecorder();
   const booted = useRef(false);
 
@@ -73,18 +77,26 @@ export default function ElderShell({ lang: fallbackLang }: { lang: Lang }) {
   const startTopic = (key: string) => {
     setMessages([]);
     setReply(null);
+    setTopicTitle(home?.topics.find((tp) => tp.key === key)?.label ?? "");
+    setPendingKind("text");
     setView("conversation");
     void drive(() =>
       api.post<ReplyEnvelope>("/api/elder/topic", { name: key }),
     );
   };
-  const sendMessage = (text: string) =>
-    drive(() => api.post<ReplyEnvelope>("/api/elder/message", { text }), {
-      role: "me",
-      text,
-    });
-  const confirm = (yes: boolean) =>
-    drive(
+  const sendMessage = (text: string) => {
+    setPendingKind("text");
+    return drive(
+      () => api.post<ReplyEnvelope>("/api/elder/message", { text }),
+      {
+        role: "me",
+        text,
+      },
+    );
+  };
+  const confirm = (yes: boolean) => {
+    setPendingKind("text");
+    return drive(
       () =>
         api.post<ReplyEnvelope>("/api/elder/message", {
           text: yes ? "yes" : "no",
@@ -94,8 +106,10 @@ export default function ElderShell({ lang: fallbackLang }: { lang: Lang }) {
         text: t(yes ? "conf_worked" : "conf_not_yet", lang),
       },
     );
+  };
   const sendPhoto = (file?: File) => {
     setView("conversation");
+    setPendingKind("photo");
     const image = file ? URL.createObjectURL(file) : undefined;
     void drive(
       async () => {
@@ -118,6 +132,7 @@ export default function ElderShell({ lang: fallbackLang }: { lang: Lang }) {
   // (unlike text/buttons where the elder's words are known up front).
   async function sendVoice(clip: { b64: string; mime: string }) {
     setView("conversation");
+    setPendingKind("voice");
     setPending(true);
     try {
       const res = await api.post<ReplyEnvelope>("/api/elder/voice", {
@@ -156,6 +171,7 @@ export default function ElderShell({ lang: fallbackLang }: { lang: Lang }) {
     // conversation is over (or abandoned): clear it and return to the launcher
     setMessages([]);
     setReply(null);
+    setTopicTitle("");
     setView("home");
   };
 
@@ -189,6 +205,8 @@ export default function ElderShell({ lang: fallbackLang }: { lang: Lang }) {
       messages={messages}
       reply={reply}
       pending={pending}
+      pendingKind={pendingKind}
+      topicTitle={topicTitle}
       canCall={!!home.relative.telegram_id}
       relativeName={home.relative.name}
       recording={recorder.recording}

@@ -13,10 +13,12 @@ export function AlertBanner({
   );
   if (!alert) return null;
   return (
-    <div className="rounded-2xl border-2 border-red-500 bg-red-50 p-4 text-red-800">
-      <div className="font-bold">{t(`ev_${alert.type}`, lang)}</div>
-      <div className="text-sm">{new Date(alert.at).toLocaleString()}</div>
-      {alert.meta && <div className="text-sm">{alert.meta}</div>}
+    <div className="rounded-2xl border-4 border-danger p-4 text-danger">
+      <div className="text-elder-base font-bold">
+        {t(`ev_${alert.type}`, lang)}
+      </div>
+      <div>{new Date(alert.at).toLocaleString()}</div>
+      {alert.meta && <div>{alert.meta}</div>}
     </div>
   );
 }
@@ -36,16 +38,15 @@ export function EventFeed({
         <li key={i} className="rounded-xl bg-tg-secondary-bg p-3">
           <div
             className={
-              e.type.includes("scam") || e.type === "safety_stop"
-                ? "font-semibold text-red-600"
-                : "font-semibold"
+              "text-elder-base font-semibold " +
+              (e.type.includes("scam") || e.type === "safety_stop"
+                ? "text-danger"
+                : "")
             }
           >
             {t(`ev_${e.type}`, lang)}
           </div>
-          <div className="text-sm text-tg-hint">
-            {new Date(e.at).toLocaleString()}
-          </div>
+          <div className="text-tg-hint">{new Date(e.at).toLocaleString()}</div>
         </li>
       ))}
     </ul>
@@ -68,10 +69,10 @@ export function SessionList({
           key={i}
           className="flex items-center justify-between rounded-xl bg-tg-secondary-bg p-3"
         >
-          <span className="font-medium">{t(`sc_${s.scenario}`, lang)}</span>
-          <span className="text-sm text-tg-hint">
-            {t(`st_${s.state}`, lang)}
+          <span className="text-elder-base font-semibold">
+            {t(`sc_${s.scenario}`, lang)}
           </span>
+          <span className="text-tg-hint">{t(`st_${s.state}`, lang)}</span>
         </li>
       ))}
     </ul>

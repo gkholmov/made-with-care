@@ -2,6 +2,7 @@ import { useState } from "react";
 import { api, SetupResult } from "../../lib/api";
 import { Lang, t } from "../../lib/i18n";
 import { tg } from "../../lib/telegram";
+import { ActionButton } from "../../components/ui";
 
 /** Mirrors the chat /setup conversation as one friendly form. */
 export default function SetupWizard({
@@ -46,41 +47,43 @@ export default function SetupWizard({
     };
     return (
       <div className="mx-auto flex min-h-screen max-w-md flex-col gap-4 p-4">
-        <h1 className="pt-2 text-2xl font-bold">
+        <h1 className="pt-2 text-elder-xl font-bold">
           ✅ {t("wizard_title", lang)}
         </h1>
-        <p>{t("join_link_hint", lang)}</p>
+        <p className="text-elder-base">{t("join_link_hint", lang)}</p>
         {result.link && (
-          <code className="break-all rounded-xl bg-tg-secondary-bg p-3 text-sm">
+          <code className="break-all rounded-xl bg-tg-secondary-bg p-3 text-elder-base">
             {result.link}
           </code>
         )}
-        <button
+        <ActionButton
+          variant="primary"
+          size="md"
+          label={t("share_link", lang)}
           onClick={share}
-          className="min-h-14 rounded-2xl bg-tg-button font-semibold text-tg-button-text active:opacity-70"
-        >
-          {t("share_link", lang)}
-        </button>
-        <button
+        />
+        <ActionButton
+          variant="secondary"
+          size="md"
+          label={t("back", lang)}
           onClick={onDone}
-          className="min-h-12 rounded-2xl bg-tg-secondary-bg font-medium active:opacity-70"
-        >
-          {t("back", lang)}
-        </button>
+        />
       </div>
     );
   }
 
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col gap-4 p-4">
-      <h1 className="pt-2 text-2xl font-bold">{t("wizard_title", lang)}</h1>
+      <h1 className="pt-2 text-elder-xl font-bold">
+        {t("wizard_title", lang)}
+      </h1>
 
       <Label text={t("w_name", lang)}>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           maxLength={120}
-          className="w-full rounded-xl bg-tg-secondary-bg p-3 text-lg outline-none"
+          className="w-full rounded-2xl bg-tg-secondary-bg p-4 text-elder-base outline-none"
         />
       </Label>
 
@@ -124,17 +127,19 @@ export default function SetupWizard({
           onChange={(e) => setEmail(e.target.value)}
           type="email"
           maxLength={200}
-          className="w-full rounded-xl bg-tg-secondary-bg p-3 text-lg outline-none"
+          className="w-full rounded-2xl bg-tg-secondary-bg p-4 text-elder-base outline-none"
         />
       </Label>
 
-      <button
-        onClick={submit}
-        disabled={!name.trim() || busy}
-        className="mt-2 min-h-14 rounded-2xl bg-tg-button font-semibold text-tg-button-text active:opacity-70 disabled:opacity-40"
-      >
-        {busy ? "…" : t("create_link", lang)}
-      </button>
+      <div className="mt-2">
+        <ActionButton
+          variant="primary"
+          size="md"
+          label={busy ? "…" : t("create_link", lang)}
+          disabled={!name.trim() || busy}
+          onClick={submit}
+        />
+      </div>
     </div>
   );
 }
@@ -148,7 +153,7 @@ function Label({
 }) {
   return (
     <label className="flex flex-col gap-2">
-      <span className="text-sm font-medium text-tg-hint">{text}</span>
+      <span className="text-elder-base font-semibold text-tg-hint">{text}</span>
       {children}
     </label>
   );
@@ -171,7 +176,7 @@ function Choice({
           type="button"
           onClick={() => onPick(v)}
           className={
-            "min-h-12 flex-1 rounded-xl font-medium active:opacity-70 " +
+            "min-h-touch flex-1 rounded-2xl text-elder-base font-semibold active:opacity-70 " +
             (v === value
               ? "bg-tg-button text-tg-button-text"
               : "bg-tg-secondary-bg")

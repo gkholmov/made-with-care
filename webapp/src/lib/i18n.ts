@@ -67,12 +67,55 @@ const STR: Record<string, Record<Lang, string>> = {
     de: "Mikrofon nicht verfügbar. Bitte erlauben oder tippen.",
   },
   transcribing: { en: "Listening…", ru: "Слушаю…", de: "Höre zu…" },
-  continue_chat: { en: "▶️ Continue", ru: "▶️ Продолжить", de: "▶️ Weiter" },
+  continue_chat: {
+    en: "▶️ Continue where we left off",
+    ru: "▶️ Продолжить",
+    de: "▶️ Weiter machen",
+  },
   gallery: {
     en: "🖼️ Choose a photo",
     ru: "🖼️ Выбрать фото",
     de: "🖼️ Foto auswählen",
   },
+  how_help: {
+    en: "How can I help today?",
+    ru: "Чем я могу помочь?",
+    de: "Wie kann ich heute helfen?",
+  },
+  show_my_screen: {
+    en: "📷 Show my screen",
+    ru: "📷 Показать мой экран",
+    de: "📷 Meinen Bildschirm zeigen",
+  },
+  pick_problem: {
+    en: "Or tap what's wrong:",
+    ru: "Или нажмите, что не так:",
+    de: "Oder tippen Sie an, was nicht stimmt:",
+  },
+  call_family: {
+    en: "📞 Call my family",
+    ru: "📞 Позвонить близким",
+    de: "📞 Familie anrufen",
+  },
+  first_run_hint: {
+    en: "Tap the blue button to talk to me, or tap your problem below. You can't break anything.",
+    ru: "Нажмите синюю кнопку, чтобы поговорить со мной, или выберите проблему ниже. Вы ничего не сломаете.",
+    de: "Tippen Sie auf die blaue Taste, um mit mir zu sprechen, oder wählen Sie unten Ihr Problem. Sie können nichts kaputt machen.",
+  },
+  other_ways: {
+    en: "Other ways to answer:",
+    ru: "Другие способы ответить:",
+    de: "Andere Möglichkeiten zu antworten:",
+  },
+  talk: { en: "🎙️ Talk", ru: "🎙️ Сказать", de: "🎙️ Sprechen" },
+  show: { en: "📷 Show", ru: "📷 Показать", de: "📷 Zeigen" },
+  type_btn: { en: "⌨️ Type", ru: "⌨️ Печатать", de: "⌨️ Tippen" },
+  status_sending_photo: {
+    en: "Sending your photo…",
+    ru: "Отправляю ваше фото…",
+    de: "Sende Ihr Foto…",
+  },
+  status_thinking: { en: "Thinking…", ru: "Думаю…", de: "Überlege…" },
   dashboard: {
     en: "Family dashboard",
     ru: "Семейная панель",

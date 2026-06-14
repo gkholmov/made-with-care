@@ -1,17 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  /* Elder-accessibility tokens: big text, 64px+ touch targets, calm palette. */
-  --text-elder-base: 1.25rem;   /* 20px */
-  --text-elder-lg: 1.5rem;      /* 24px */
-  --text-elder-xl: 1.75rem;     /* 28px */
-  --spacing-touch: 4rem;        /* min touch target height */
+  /* Elder-accessibility tokens: big text, large touch targets, calm palette. */
+  --text-elder-base: 1.375rem; /* 22px body */
+  --text-elder-lg: 1.625rem; /* 26px buttons */
+  --text-elder-xl: 2rem; /* 32px headings */
+  --text-elder-2xl: 2.25rem; /* 36px hero */
+  --spacing-touch: 4rem; /* 64px secondary target */
+  --spacing-touch-lg: 5rem; /* 80px primary target */
+
+  /* Telegram theme (with high-contrast fallbacks) */
   --color-tg-bg: var(--tg-theme-bg-color, #ffffff);
   --color-tg-text: var(--tg-theme-text-color, #111827);
   --color-tg-hint: var(--tg-theme-hint-color, #6b7280);
   --color-tg-button: var(--tg-theme-button-color, #2563eb);
   --color-tg-button-text: var(--tg-theme-button-text-color, #ffffff);
   --color-tg-secondary-bg: var(--tg-theme-secondary-bg-color, #f3f4f6);
+
+  /* Semantic colors — one meaning everywhere: green=yes/worked, amber=not-yet, red=danger */
+  --color-success: #16a34a;
+  --color-success-text: #ffffff;
+  --color-warn: #b45309;
+  --color-warn-text: #ffffff;
+  --color-danger: #dc2626;
+  --color-danger-text: #ffffff;
 }
 
 body {
@@ -21,7 +33,9 @@ body {
 }
 
 /* The elder face: no motion at all — animation reads as instability. */
-.elder *, .elder *::before, .elder *::after {
+.elder *,
+.elder *::before,
+.elder *::after {
   transition: none !important;
   animation: none !important;
 }
