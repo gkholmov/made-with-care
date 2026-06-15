@@ -151,10 +151,15 @@ export default function Conversation({
     setDraft("");
   };
 
-  // The "Did it work?" prompt only makes sense once the helper has actually
-  // walked the elder through a step — show it after the 2nd helper message.
+  // The "Did it work?" prompt only makes sense once the helper has walked the
+  // elder through a step (after the 2nd helper message) AND the helper actually
+  // asked a yes/no check. When the helper asks a choice/open question it sets
+  // confirm_kind="ask", and we hide the yes/no buttons so the elder just replies.
   const botCount = messages.filter((m) => m.role === "bot").length;
-  const showConfirm = botCount >= 2;
+  const choices = (!terminal && reply?.choices) || [];
+  const hasChoices = choices.length > 0;
+  const showConfirm =
+    botCount >= 2 && reply?.confirm_kind !== "ask" && !hasChoices;
 
   const callLabel = relativeName
     ? `${t("call", lang)} ${relativeName}`
@@ -321,6 +326,23 @@ export default function Conversation({
                   </button>
                 </div>
               </>
+            ) : null}
+
+            {/* the AI offered a choice — big tappable options instead of yes/no */}
+            {hasChoices ? (
+              <div className="flex flex-col gap-2.5">
+                {choices.map((c, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    disabled={pending}
+                    onClick={() => onSend(c)}
+                    className="flex min-h-[60px] w-full items-center justify-center rounded-2xl border-[1.5px] border-[#2C5D87] bg-[#FBF7EF] px-4 text-[19px] font-bold text-[#2C5D87] active:opacity-90 disabled:opacity-40"
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
             ) : null}
 
             {/* always-visible text box — no need to tap "Type" first */}

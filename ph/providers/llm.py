@@ -44,8 +44,13 @@ class ConverseReply:
     resolved: bool = False             # True only when the problem is clearly solved
     # The verb the elder is being asked to confirm, so the UI's "yes" button can
     # match the question ("do you SEE it?" -> "I see it"). One of:
-    # worked | see | found | done | open. Defaults to "worked".
+    # worked | see | found | done | open, or "ask" for a choice/open question
+    # (the UI then hides the yes/no buttons). Defaults to "worked".
     confirm_kind: str = "worked"
+    # When the message offers a choice, the short option labels (in the elder's
+    # language), e.g. ["Play Sound", "Directions"]. The UI renders them as big
+    # tappable buttons; tapping one sends it as the elder's reply.
+    choices: List[str] = field(default_factory=list)
 
 
 CONVERSE_SYSTEM = (
@@ -101,11 +106,16 @@ CONVERSE_SYSTEM = (
 
     "When the problem is clearly solved, say so warmly and set resolved=true. "
 
-    "CONFIRM VERB: when you give a step and ask the elder to check the result, set confirm_kind to "
-    "the verb that matches what you asked them to verify, so their 'yes' button reads naturally: "
+    "CONFIRM VERB: when your message ends with a YES/NO check of one step, set confirm_kind to the "
+    "verb that matches what you asked them to verify, so their 'yes' button reads naturally: "
     "'see' if you asked whether they SEE/notice something on screen; 'found' if you asked whether "
     "they FOUND/located something; 'open' if you asked whether something OPENED; 'done' if you asked "
-    "whether they finished an action; otherwise 'worked'."
+    "whether they finished an action; otherwise 'worked'. "
+    "BUT if your message asks them to CHOOSE between options (e.g. 'which would you like, A or B?') "
+    "or asks an OPEN question they must answer in their own words rather than yes/no, set "
+    "confirm_kind to 'ask' — then no yes/no button is shown and they simply reply. "
+    "When you offer a choice, ALSO fill 'choices' with the short option labels in their language "
+    "(matching your wording), so they can tap instead of type; leave 'choices' empty otherwise."
 )
 
 SYSTEM_PERSONA = (  # legacy, for compose()
@@ -124,9 +134,17 @@ _REPLY_TOOL = {
             "resolved": {"type": "boolean", "description": "True ONLY if the problem is now clearly solved."},
             "confirm_kind": {
                 "type": "string",
-                "enum": ["worked", "see", "found", "done", "open"],
+                "enum": ["worked", "see", "found", "done", "open", "ask"],
                 "description": "The verb the elder is asked to confirm, so their 'yes' button matches "
-                               "the question (see/found/open/done), else 'worked'.",
+                               "the question (see/found/open/done), else 'worked'. Use 'ask' when the "
+                               "message is a choice or open question (no yes/no button is shown).",
+            },
+            "choices": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "If your message offers the elder a choice, the 2-4 short option labels "
+                               "in their language (e.g. ['Play Sound','Directions']), matching the "
+                               "wording in your message. Empty when there is no choice.",
             },
         },
         "required": ["message", "resolved"],
@@ -226,9 +244,12 @@ class AnthropicLLM(LLM):
             messages=messages, tools=[_REPLY_TOOL], tool_choice={"type": "tool", "name": "respond"})
         for b in msg.content:
             if getattr(b, "type", "") == "tool_use":
+                raw_choices = b.input.get("choices") or []
+                choices = [str(c).strip() for c in raw_choices if str(c).strip()][:4]
                 return ConverseReply(
                     str(b.input.get("message", "")).strip(),
                     bool(b.input.get("resolved")),
-                    confirm_kind=str(b.input.get("confirm_kind") or "worked"))
+                    confirm_kind=str(b.input.get("confirm_kind") or "worked"),
+                    choices=choices)
         text = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text").strip()
         return ConverseReply(text, resolved=False)

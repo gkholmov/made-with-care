@@ -10,7 +10,7 @@ the scam topic, or when the elder explicitly asks.
 Pure and adapter-agnostic: takes a normalized inbound message, returns a Reply.
 Escalation side-effects go through an injected Notifier (so it's testable)."""
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from ph.core import safety, intent, playbooks
 from ph.core.i18n import t
@@ -25,7 +25,8 @@ class Reply:
     state: str = "active"        # active | resolved | escalated | safety_stop
     show_call: bool = True       # whether to surface the "Call relative" affordance
     expect_confirm: bool = False  # kept for API compatibility (UI always offers quick replies)
-    confirm_kind: str = "worked"  # verb for the "yes" button: worked|see|found|done|open
+    confirm_kind: str = "worked"  # verb for the "yes" button: worked|see|found|done|open|ask
+    choices: list = field(default_factory=list)  # tappable option labels for a choice question
 
 
 GENERIC_GUIDANCE = (
@@ -111,4 +112,5 @@ def handle(elder_id: int, name: str, language: str, text: str,
         store.update_session(sess.id, state="resolved")
         store.log_event(elder_id, "resolved", sess.scenario)
         return Reply(rep.text, state="resolved", show_call=False)
-    return Reply(rep.text, state="active", show_call=True, confirm_kind=rep.confirm_kind)
+    return Reply(rep.text, state="active", show_call=True,
+                 confirm_kind=rep.confirm_kind, choices=rep.choices)

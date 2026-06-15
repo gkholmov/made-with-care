@@ -70,8 +70,10 @@ export interface Reply {
   state: ReplyState;
   expect_confirm: boolean;
   show_call: boolean;
-  /** Verb the elder is asked to confirm: worked | see | found | done | open. */
+  /** Verb the elder is asked to confirm: worked | see | found | done | open | ask. */
   confirm_kind?: string;
+  /** Tappable option labels when the AI asks the elder to choose. */
+  choices?: string[];
 }
 
 export interface ReplyEnvelope {

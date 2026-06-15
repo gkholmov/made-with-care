@@ -47,7 +47,7 @@ def _reply_json(r: orchestrator.Reply) -> dict:
     """Serialize an orchestrator Reply for the in-app conversation."""
     return {"reply": {"text": r.text, "state": r.state,
                       "expect_confirm": r.expect_confirm, "show_call": r.show_call,
-                      "confirm_kind": r.confirm_kind}}
+                      "confirm_kind": r.confirm_kind, "choices": r.choices}}
 
 _bot_username_cache: dict = {}
 
