@@ -9,15 +9,15 @@
   --spacing-touch: 4rem; /* 64px secondary target */
   --spacing-touch-lg: 5rem; /* 80px primary target */
 
-  /* Telegram theme, "Calm & Editorial" fallbacks (sand + editorial blue).
-     Inside real Telegram, --tg-theme-* override these so we adapt to the user's
-     theme; outside (desktop/mock) we paint the warm editorial palette. */
-  --color-tg-bg: var(--tg-theme-bg-color, #fbf7ef);
-  --color-tg-text: var(--tg-theme-text-color, #2a2620);
-  --color-tg-hint: var(--tg-theme-hint-color, #7a7163);
-  --color-tg-button: var(--tg-theme-button-color, #2c5d87);
-  --color-tg-button-text: var(--tg-theme-button-text-color, #ffffff);
-  --color-tg-secondary-bg: var(--tg-theme-secondary-bg-color, #f2ecdf);
+  /* "Calm & Editorial" palette — FIXED (sand + editorial blue).
+     We intentionally do NOT follow the Telegram/device theme here: the shared
+     design is a warm light look, so a black iOS theme must not turn it dark. */
+  --color-tg-bg: #fbf7ef;
+  --color-tg-text: #2a2620;
+  --color-tg-hint: #7a7163;
+  --color-tg-button: #2c5d87;
+  --color-tg-button-text: #ffffff;
+  --color-tg-secondary-bg: #f2ecdf;
 
   /* Editorial hairline — quiet separators on the warm background. */
   --color-line: #e7dfcf;

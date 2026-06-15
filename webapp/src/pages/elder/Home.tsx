@@ -4,12 +4,18 @@
  * "Show my screen", a labeled list of common problems, and a persistent
  * "Call my family" affordance. ElderShell owns all data + actions.
  *
- * Colors map to Telegram theme CSS variables with light/neutral fallbacks so the
- * view adapts to the user's Telegram theme. All copy comes through t() (en/ru/de).
+ * Colors are the FIXED editorial palette (sand + blue) — intentionally NOT the
+ * device/Telegram theme, so a dark phone theme can't turn the warm UI black.
+ * All copy comes through t() (en/ru/de).
  */
 import React from "react";
 import { ElderHome } from "../../lib/api";
 import { Lang, t } from "../../lib/i18n";
+
+/** Topic labels come from the backend with a leading emoji; the screen shows its
+ * own inline-SVG icon, so strip the emoji to avoid a doubled icon. */
+const stripEmoji = (s: string) =>
+  s.replace(/[\p{Extended_Pictographic}️‍]/gu, "").trim();
 
 /* ---- inline icons (monochrome, currentColor) ------------------------------- */
 const S = {
@@ -155,13 +161,13 @@ export default function Home({
   onCall: () => void;
 }) {
   return (
-    <div className="elder min-h-screen w-full bg-[var(--tg-theme-bg-color,#FBF7EF)] px-6 pb-8 pt-4 text-[var(--tg-theme-text-color,#2A2620)]">
+    <div className="elder min-h-screen w-full bg-[#FBF7EF] px-6 pb-8 pt-4 text-[#2A2620]">
       {/* greeting */}
       <h1 className="mt-2 font-serif text-[30px] font-bold leading-tight tracking-tight">
         {t("hello", lang)}
         {home.name ? `, ${home.name}` : ""}
       </h1>
-      <p className="mt-2 text-[18px] leading-snug text-[var(--tg-theme-hint-color,#7A7163)]">
+      <p className="mt-2 text-[18px] leading-snug text-[#7A7163]">
         {t("how_help", lang)}
       </p>
 
@@ -172,11 +178,11 @@ export default function Home({
           onClick={onResume}
           className="mt-5 flex w-full items-center gap-4 border-y border-[#E7DFCF] py-4 text-left active:opacity-90"
         >
-          <span className="flex h-11 w-11 flex-none items-center justify-center rounded-xl bg-[var(--tg-theme-button-color,#2C5D87)] text-[var(--tg-theme-button-text-color,#ffffff)]">
+          <span className="flex h-11 w-11 flex-none items-center justify-center rounded-xl bg-[#2C5D87] text-[#ffffff]">
             <PlayIcon className="h-5 w-5" />
           </span>
           <span className="flex-1">
-            <span className="block text-[13px] font-bold uppercase tracking-wide text-[var(--tg-theme-button-color,#2C5D87)]">
+            <span className="block text-[13px] font-bold uppercase tracking-wide text-[#2C5D87]">
               {t("continue_label", lang)}
             </span>
             <span className="block text-[19px] font-semibold">
@@ -194,8 +200,8 @@ export default function Home({
         className={
           "mt-5 flex min-h-[92px] w-full items-center gap-4 rounded-2xl px-6 text-left active:opacity-90 " +
           (recording
-            ? "bg-[var(--color-danger,#B23A2E)] text-white"
-            : "bg-[var(--tg-theme-button-color,#2C5D87)] text-[var(--tg-theme-button-text-color,#ffffff)]")
+            ? "bg-[#B23A2E] text-white"
+            : "bg-[#2C5D87] text-[#ffffff]")
         }
       >
         <MicIcon className="h-9 w-9 flex-none" />
@@ -205,7 +211,7 @@ export default function Home({
       </button>
 
       {/* secondary: show my screen (file picker → take photo OR pick from gallery) */}
-      <label className="mt-3 flex min-h-[84px] w-full cursor-pointer items-center gap-4 rounded-2xl border-[1.5px] border-[var(--tg-theme-button-color,#2C5D87)] bg-transparent px-6 text-left text-[var(--tg-theme-button-color,#2C5D87)] active:opacity-90">
+      <label className="mt-3 flex min-h-[84px] w-full cursor-pointer items-center gap-4 rounded-2xl border-[1.5px] border-[#2C5D87] bg-transparent px-6 text-left text-[#2C5D87] active:opacity-90">
         <ScreenIcon className="h-8 w-8 flex-none" />
         <span className="text-[22px] font-bold">{t("show_screen", lang)}</span>
         <input
@@ -232,11 +238,11 @@ export default function Home({
               onClick={() => onTopic(topic.key)}
               className="flex min-h-[74px] w-full items-center gap-4 border-b border-[#E7DFCF] py-3.5 text-left active:opacity-90"
             >
-              <span className="flex h-[46px] w-[46px] flex-none items-center justify-center rounded-full bg-[var(--tg-theme-secondary-bg-color,#F2ECDF)] text-[var(--tg-theme-button-color,#2C5D87)]">
+              <span className="flex h-[46px] w-[46px] flex-none items-center justify-center rounded-full bg-[#F2ECDF] text-[#2C5D87]">
                 <TopicIcon topicKey={topic.key} className="h-6 w-6" />
               </span>
               <span className="flex-1 text-[21px] font-semibold">
-                {topic.label}
+                {stripEmoji(topic.label)}
               </span>
               <ChevronRight className="h-6 w-6 flex-none text-[#A99F8D]" />
             </button>
@@ -249,7 +255,7 @@ export default function Home({
         <button
           type="button"
           onClick={onCall}
-          className="mt-6 flex w-full items-center justify-center gap-3 border-t border-[#E7DFCF] py-4 text-[var(--tg-theme-button-color,#2C5D87)] active:opacity-90"
+          className="mt-6 flex w-full items-center justify-center gap-3 border-t border-[#E7DFCF] py-4 text-[#2C5D87] active:opacity-90"
         >
           <PhoneIcon className="h-6 w-6" />
           <span className="text-[19px] font-bold">
