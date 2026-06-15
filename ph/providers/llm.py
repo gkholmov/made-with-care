@@ -42,6 +42,10 @@ class ConverseRequest:
 class ConverseReply:
     text: str
     resolved: bool = False             # True only when the problem is clearly solved
+    # The verb the elder is being asked to confirm, so the UI's "yes" button can
+    # match the question ("do you SEE it?" -> "I see it"). One of:
+    # worked | see | found | done | open. Defaults to "worked".
+    confirm_kind: str = "worked"
 
 
 CONVERSE_SYSTEM = (
@@ -95,7 +99,13 @@ CONVERSE_SYSTEM = (
     "below as your trusted knowledge and do not invent risky or unfamiliar steps. Do not offer to "
     "call their family yourself unless they ask or it looks like a scam. "
 
-    "When the problem is clearly solved, say so warmly and set resolved=true."
+    "When the problem is clearly solved, say so warmly and set resolved=true. "
+
+    "CONFIRM VERB: when you give a step and ask the elder to check the result, set confirm_kind to "
+    "the verb that matches what you asked them to verify, so their 'yes' button reads naturally: "
+    "'see' if you asked whether they SEE/notice something on screen; 'found' if you asked whether "
+    "they FOUND/located something; 'open' if you asked whether something OPENED; 'done' if you asked "
+    "whether they finished an action; otherwise 'worked'."
 )
 
 SYSTEM_PERSONA = (  # legacy, for compose()
@@ -112,6 +122,12 @@ _REPLY_TOOL = {
         "properties": {
             "message": {"type": "string", "description": "The warm, simple reply in the target language."},
             "resolved": {"type": "boolean", "description": "True ONLY if the problem is now clearly solved."},
+            "confirm_kind": {
+                "type": "string",
+                "enum": ["worked", "see", "found", "done", "open"],
+                "description": "The verb the elder is asked to confirm, so their 'yes' button matches "
+                               "the question (see/found/open/done), else 'worked'.",
+            },
         },
         "required": ["message", "resolved"],
     },
@@ -210,6 +226,9 @@ class AnthropicLLM(LLM):
             messages=messages, tools=[_REPLY_TOOL], tool_choice={"type": "tool", "name": "respond"})
         for b in msg.content:
             if getattr(b, "type", "") == "tool_use":
-                return ConverseReply(str(b.input.get("message", "")).strip(), bool(b.input.get("resolved")))
+                return ConverseReply(
+                    str(b.input.get("message", "")).strip(),
+                    bool(b.input.get("resolved")),
+                    confirm_kind=str(b.input.get("confirm_kind") or "worked"))
         text = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text").strip()
         return ConverseReply(text, resolved=False)

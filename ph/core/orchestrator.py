@@ -25,6 +25,7 @@ class Reply:
     state: str = "active"        # active | resolved | escalated | safety_stop
     show_call: bool = True       # whether to surface the "Call relative" affordance
     expect_confirm: bool = False  # kept for API compatibility (UI always offers quick replies)
+    confirm_kind: str = "worked"  # verb for the "yes" button: worked|see|found|done|open
 
 
 GENERIC_GUIDANCE = (
@@ -110,4 +111,4 @@ def handle(elder_id: int, name: str, language: str, text: str,
         store.update_session(sess.id, state="resolved")
         store.log_event(elder_id, "resolved", sess.scenario)
         return Reply(rep.text, state="resolved", show_call=False)
-    return Reply(rep.text, state="active", show_call=True)
+    return Reply(rep.text, state="active", show_call=True, confirm_kind=rep.confirm_kind)

@@ -6,7 +6,7 @@ import {
   Reply,
   ReplyEnvelope,
 } from "../../lib/api";
-import { Lang, t } from "../../lib/i18n";
+import { Lang, t, affirmKey } from "../../lib/i18n";
 import { tg } from "../../lib/telegram";
 import { useRecorder } from "../../lib/voice";
 import { fileToDownscaledB64 } from "../../lib/image";
@@ -96,15 +96,15 @@ export default function ElderShell({ lang: fallbackLang }: { lang: Lang }) {
   };
   const confirm = (yes: boolean) => {
     setPendingKind("text");
+    const label = yes
+      ? t(affirmKey(reply?.confirm_kind), lang)
+      : t("conf_not_yet", lang);
     return drive(
       () =>
         api.post<ReplyEnvelope>("/api/elder/message", {
           text: yes ? "yes" : "no",
         }),
-      {
-        role: "me",
-        text: t(yes ? "conf_worked" : "conf_not_yet", lang),
-      },
+      { role: "me", text: label },
     );
   };
   const sendPhoto = (file?: File) => {

@@ -12,7 +12,7 @@
  */
 import React, { useEffect, useRef, useState } from "react";
 import { Reply } from "../../lib/api";
-import { Lang, t } from "../../lib/i18n";
+import { Lang, t, affirmKey } from "../../lib/i18n";
 
 export type Msg = { role: "bot" | "me"; text: string; image?: string };
 
@@ -305,7 +305,7 @@ export default function Conversation({
                   >
                     <CheckIcon className="h-5 w-5" />
                     <span className="text-[17px] font-bold">
-                      {t("worked_plain", lang)}
+                      {t(affirmKey(reply?.confirm_kind), lang)}
                     </span>
                   </button>
                   <button

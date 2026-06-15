@@ -140,6 +140,11 @@ const STR: Record<string, Record<Lang, string>> = {
     de: "Hat geklappt",
   },
   not_yet_plain: { en: "Not yet", ru: "Пока нет", de: "Noch nicht" },
+  // affirmative confirm labels, chosen by the AI's confirm_kind to match its question
+  conf_see: { en: "I see it", ru: "Вижу", de: "Ich sehe es" },
+  conf_found: { en: "I found it", ru: "Нашлось", de: "Gefunden" },
+  conf_open: { en: "It opened", ru: "Открылось", de: "Es ist offen" },
+  conf_done: { en: "It's done", ru: "Готово", de: "Erledigt" },
   talk_word: { en: "Talk", ru: "Сказать", de: "Sprechen" },
   show_word: { en: "Show", ru: "Показать", de: "Zeigen" },
   type_word: { en: "Type", ru: "Печатать", de: "Tippen" },
@@ -344,4 +349,20 @@ export function normLang(raw: string | undefined): Lang {
 
 export function t(key: string, lang: Lang): string {
   return STR[key]?.[lang] ?? STR[key]?.en ?? key;
+}
+
+/** i18n key for the affirmative confirm button, matching the AI's confirm_kind. */
+export function affirmKey(kind?: string): string {
+  switch (kind) {
+    case "see":
+      return "conf_see";
+    case "found":
+      return "conf_found";
+    case "open":
+      return "conf_open";
+    case "done":
+      return "conf_done";
+    default:
+      return "worked_plain";
+  }
 }

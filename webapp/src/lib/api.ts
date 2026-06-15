@@ -70,6 +70,8 @@ export interface Reply {
   state: ReplyState;
   expect_confirm: boolean;
   show_call: boolean;
+  /** Verb the elder is asked to confirm: worked | see | found | done | open. */
+  confirm_kind?: string;
 }
 
 export interface ReplyEnvelope {
