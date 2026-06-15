@@ -51,14 +51,16 @@ export default function ElderDetail({
   };
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col gap-4 p-4">
+    <div className="mx-auto flex min-h-screen max-w-md flex-col gap-4 bg-tg-bg p-4">
       <div className="flex items-center justify-between gap-3 pt-2">
-        <h1 className="text-elder-xl font-bold">{detail.name}</h1>
+        <h1 className="font-serif text-elder-xl font-bold tracking-tight">
+          {detail.name}
+        </h1>
         <button
           onClick={onSettings}
-          className="shrink-0 rounded-xl bg-tg-secondary-bg px-4 py-3 text-elder-base font-semibold active:opacity-70"
+          className="shrink-0 rounded-xl border border-line bg-tg-secondary-bg px-4 py-3 text-elder-base font-semibold text-tg-button active:opacity-70"
         >
-          ⚙️ {t("settings", lang)}
+          {t("settings", lang)}
         </button>
       </div>
 

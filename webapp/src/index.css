@@ -9,20 +9,26 @@
   --spacing-touch: 4rem; /* 64px secondary target */
   --spacing-touch-lg: 5rem; /* 80px primary target */
 
-  /* Telegram theme (with high-contrast fallbacks) */
-  --color-tg-bg: var(--tg-theme-bg-color, #ffffff);
-  --color-tg-text: var(--tg-theme-text-color, #111827);
-  --color-tg-hint: var(--tg-theme-hint-color, #6b7280);
-  --color-tg-button: var(--tg-theme-button-color, #2563eb);
+  /* Telegram theme, "Calm & Editorial" fallbacks (sand + editorial blue).
+     Inside real Telegram, --tg-theme-* override these so we adapt to the user's
+     theme; outside (desktop/mock) we paint the warm editorial palette. */
+  --color-tg-bg: var(--tg-theme-bg-color, #fbf7ef);
+  --color-tg-text: var(--tg-theme-text-color, #2a2620);
+  --color-tg-hint: var(--tg-theme-hint-color, #7a7163);
+  --color-tg-button: var(--tg-theme-button-color, #2c5d87);
   --color-tg-button-text: var(--tg-theme-button-text-color, #ffffff);
-  --color-tg-secondary-bg: var(--tg-theme-secondary-bg-color, #f3f4f6);
+  --color-tg-secondary-bg: var(--tg-theme-secondary-bg-color, #f2ecdf);
 
-  /* Semantic colors — one meaning everywhere: green=yes/worked, amber=not-yet, red=danger */
-  --color-success: #16a34a;
+  /* Editorial hairline — quiet separators on the warm background. */
+  --color-line: #e7dfcf;
+
+  /* Semantic colors — muted to sit in the editorial palette.
+     green=yes/worked, amber=not-yet, terracotta=danger */
+  --color-success: #2e7d5b;
   --color-success-text: #ffffff;
-  --color-warn: #b45309;
+  --color-warn: #b26a1e;
   --color-warn-text: #ffffff;
-  --color-danger: #dc2626;
+  --color-danger: #b23a2e;
   --color-danger-text: #ffffff;
 }
 
@@ -30,6 +36,11 @@ body {
   background: var(--color-tg-bg);
   color: var(--color-tg-text);
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Editorial heading face — serif for titles across the app. */
+.font-serif {
+  font-family: Georgia, "Times New Roman", ui-serif, serif;
 }
 
 /* The elder face: no motion at all — animation reads as instability. */

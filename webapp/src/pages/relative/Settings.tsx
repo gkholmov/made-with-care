@@ -36,9 +36,9 @@ export default function Settings({
   };
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col gap-5 p-4">
-      <h1 className="pt-2 text-elder-xl font-bold">
-        ⚙️ {detail.name} — {t("settings", lang)}
+    <div className="mx-auto flex min-h-screen max-w-md flex-col gap-5 bg-tg-bg p-4">
+      <h1 className="pt-2 font-serif text-elder-xl font-bold tracking-tight">
+        {detail.name} — {t("settings", lang)}
       </h1>
 
       <Section title={t("language", lang)}>
@@ -96,7 +96,7 @@ function Section({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <h2 className="text-sm font-medium uppercase tracking-wide text-tg-hint">
+      <h2 className="text-sm font-bold uppercase tracking-wide text-tg-hint">
         {title}
       </h2>
       {children}
@@ -126,7 +126,7 @@ function Row({
             "min-h-touch flex-1 rounded-2xl text-elder-base font-semibold active:opacity-70 disabled:opacity-40 " +
             (v === value
               ? "bg-tg-button text-tg-button-text"
-              : "bg-tg-secondary-bg")
+              : "border border-line bg-tg-secondary-bg text-tg-text")
           }
         >
           {label}

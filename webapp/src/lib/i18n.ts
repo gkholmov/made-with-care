@@ -25,20 +25,20 @@ const STR: Record<string, Record<Lang, string>> = {
   },
   send: { en: "Send", ru: "Отправить", de: "Senden" },
   conf_worked: {
-    en: "✅ It worked",
-    ru: "✅ Получилось",
-    de: "✅ Hat geklappt",
+    en: "It worked",
+    ru: "Получилось",
+    de: "Hat geklappt",
   },
-  conf_not_yet: { en: "❌ Not yet", ru: "❌ Пока нет", de: "❌ Noch nicht" },
+  conf_not_yet: { en: "Not yet", ru: "Пока нет", de: "Noch nicht" },
   photo_hint: {
     en: "📷 Show me your screen",
     ru: "📷 Покажите экран",
     de: "📷 Bildschirm zeigen",
   },
   conv_photo_sent: {
-    en: "📷 Photo sent",
-    ru: "📷 Фото отправлено",
-    de: "📷 Foto gesendet",
+    en: "Photo sent",
+    ru: "Фото отправлено",
+    de: "Foto gesendet",
   },
   back_home: {
     en: "Back to topics",
@@ -57,9 +57,9 @@ const STR: Record<string, Record<Lang, string>> = {
     de: "🎙️ Sagen Sie, was los ist",
   },
   recording: {
-    en: "● Recording… tap to send",
-    ru: "● Запись… нажмите, чтобы отправить",
-    de: "● Aufnahme… tippen zum Senden",
+    en: "Recording… tap to send",
+    ru: "Запись… нажмите, чтобы отправить",
+    de: "Aufnahme… tippen zum Senden",
   },
   mic_error: {
     en: "I couldn't use the microphone. Please allow it, or type instead.",
@@ -68,9 +68,9 @@ const STR: Record<string, Record<Lang, string>> = {
   },
   transcribing: { en: "Listening…", ru: "Слушаю…", de: "Höre zu…" },
   continue_chat: {
-    en: "▶️ Continue where we left off",
-    ru: "▶️ Продолжить",
-    de: "▶️ Weiter machen",
+    en: "Where we left off",
+    ru: "С того места, где остановились",
+    de: "Wo wir aufgehört haben",
   },
   gallery: {
     en: "🖼️ Choose a photo",

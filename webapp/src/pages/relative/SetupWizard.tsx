@@ -46,13 +46,13 @@ export default function SetupWizard({
         );
     };
     return (
-      <div className="mx-auto flex min-h-screen max-w-md flex-col gap-4 p-4">
-        <h1 className="pt-2 text-elder-xl font-bold">
-          ✅ {t("wizard_title", lang)}
+      <div className="mx-auto flex min-h-screen max-w-md flex-col gap-4 bg-tg-bg p-4">
+        <h1 className="pt-2 font-serif text-elder-xl font-bold tracking-tight">
+          {t("wizard_title", lang)}
         </h1>
         <p className="text-elder-base">{t("join_link_hint", lang)}</p>
         {result.link && (
-          <code className="break-all rounded-xl bg-tg-secondary-bg p-3 text-elder-base">
+          <code className="break-all rounded-xl border border-line bg-tg-secondary-bg p-3 text-elder-base">
             {result.link}
           </code>
         )}
@@ -73,8 +73,8 @@ export default function SetupWizard({
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col gap-4 p-4">
-      <h1 className="pt-2 text-elder-xl font-bold">
+    <div className="mx-auto flex min-h-screen max-w-md flex-col gap-4 bg-tg-bg p-4">
+      <h1 className="pt-2 font-serif text-elder-xl font-bold tracking-tight">
         {t("wizard_title", lang)}
       </h1>
 
@@ -83,7 +83,7 @@ export default function SetupWizard({
           value={name}
           onChange={(e) => setName(e.target.value)}
           maxLength={120}
-          className="w-full rounded-2xl bg-tg-secondary-bg p-4 text-elder-base outline-none"
+          className="w-full rounded-2xl border border-line bg-tg-secondary-bg p-4 text-elder-base outline-none focus:border-tg-button"
         />
       </Label>
 
@@ -127,7 +127,7 @@ export default function SetupWizard({
           onChange={(e) => setEmail(e.target.value)}
           type="email"
           maxLength={200}
-          className="w-full rounded-2xl bg-tg-secondary-bg p-4 text-elder-base outline-none"
+          className="w-full rounded-2xl border border-line bg-tg-secondary-bg p-4 text-elder-base outline-none focus:border-tg-button"
         />
       </Label>
 
@@ -179,7 +179,7 @@ function Choice({
             "min-h-touch flex-1 rounded-2xl text-elder-base font-semibold active:opacity-70 " +
             (v === value
               ? "bg-tg-button text-tg-button-text"
-              : "bg-tg-secondary-bg")
+              : "border border-line bg-tg-secondary-bg text-tg-text")
           }
         >
           {label}

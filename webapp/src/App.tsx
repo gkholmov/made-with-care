@@ -88,7 +88,7 @@ export default function App() {
 
 function Center({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen items-center justify-center p-6 text-elder-base text-tg-hint">
+    <div className="flex min-h-screen items-center justify-center bg-tg-bg p-6 text-elder-base text-tg-hint">
       {children}
     </div>
   );

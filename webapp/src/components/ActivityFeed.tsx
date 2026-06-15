@@ -13,12 +13,12 @@ export function AlertBanner({
   );
   if (!alert) return null;
   return (
-    <div className="rounded-2xl border-4 border-danger p-4 text-danger">
-      <div className="text-elder-base font-bold">
+    <div className="rounded-2xl border-2 border-danger bg-danger/5 p-4 text-danger">
+      <div className="font-serif text-elder-base font-bold">
         {t(`ev_${alert.type}`, lang)}
       </div>
-      <div>{new Date(alert.at).toLocaleString()}</div>
-      {alert.meta && <div>{alert.meta}</div>}
+      <div className="text-tg-hint">{new Date(alert.at).toLocaleString()}</div>
+      {alert.meta && <div className="mt-1">{alert.meta}</div>}
     </div>
   );
 }
@@ -35,7 +35,10 @@ export function EventFeed({
   return (
     <ul className="flex flex-col gap-2">
       {events.map((e, i) => (
-        <li key={i} className="rounded-xl bg-tg-secondary-bg p-3">
+        <li
+          key={i}
+          className="rounded-xl border border-line bg-tg-secondary-bg p-3"
+        >
           <div
             className={
               "text-elder-base font-semibold " +
@@ -67,7 +70,7 @@ export function SessionList({
       {sessions.map((s, i) => (
         <li
           key={i}
-          className="flex items-center justify-between rounded-xl bg-tg-secondary-bg p-3"
+          className="flex items-center justify-between rounded-xl border border-line bg-tg-secondary-bg p-3"
         >
           <span className="text-elder-base font-semibold">
             {t(`sc_${s.scenario}`, lang)}

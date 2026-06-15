@@ -135,11 +135,11 @@ export function ScreenHeader({
   right?: ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-2 border-b border-tg-secondary-bg px-3 py-3">
+    <div className="flex items-center gap-2 border-b border-line px-3 py-3">
       {onBack ? (
         <button
           onClick={onBack}
-          className="min-h-12 shrink-0 rounded-xl bg-tg-secondary-bg px-4 text-elder-base font-semibold active:opacity-70"
+          className="min-h-12 shrink-0 rounded-xl bg-tg-secondary-bg px-4 text-elder-base font-semibold text-tg-button active:opacity-70"
         >
           ‹ {backLabel}
         </button>
@@ -147,7 +147,7 @@ export function ScreenHeader({
         <span className="w-2" />
       )}
       {title && (
-        <span className="flex-1 truncate text-center text-elder-base font-bold">
+        <span className="flex-1 truncate text-center font-serif text-elder-base font-bold">
           {title}
         </span>
       )}
@@ -158,7 +158,7 @@ export function ScreenHeader({
 
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <p className="px-1 pt-2 text-elder-base font-semibold text-tg-hint">
+    <p className="px-1 pt-2 text-sm font-bold uppercase tracking-wide text-tg-hint">
       {children}
     </p>
   );
@@ -171,7 +171,7 @@ export function Card({
   children: ReactNode;
   onClick?: () => void;
 }) {
-  const cls = "rounded-2xl bg-tg-secondary-bg p-4";
+  const cls = "rounded-2xl border border-line bg-tg-secondary-bg p-4";
   return onClick ? (
     <button
       onClick={onClick}
