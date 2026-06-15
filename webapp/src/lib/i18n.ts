@@ -116,6 +116,58 @@ const STR: Record<string, Record<Lang, string>> = {
     de: "Sende Ihr Foto…",
   },
   status_thinking: { en: "Thinking…", ru: "Думаю…", de: "Überlege…" },
+  // --- "Calm & Editorial" screens (emoji-free; icons are inline SVG) ---
+  talk_to_me: {
+    en: "Talk to me",
+    ru: "Поговорите со мной",
+    de: "Sprechen Sie mit mir",
+  },
+  problems_heading: {
+    en: "Common problems",
+    ru: "Частые проблемы",
+    de: "Häufige Probleme",
+  },
+  continue_label: { en: "Continue", ru: "Продолжить", de: "Weiter" },
+  helping_with: { en: "Helping with", ru: "Помогаю с", de: "Hilfe bei" },
+  did_it_work: {
+    en: "Did it work?",
+    ru: "Получилось?",
+    de: "Hat es geklappt?",
+  },
+  worked_plain: {
+    en: "It worked",
+    ru: "Получилось",
+    de: "Hat geklappt",
+  },
+  not_yet_plain: { en: "Not yet", ru: "Пока нет", de: "Noch nicht" },
+  talk_word: { en: "Talk", ru: "Сказать", de: "Sprechen" },
+  show_word: { en: "Show", ru: "Показать", de: "Zeigen" },
+  type_word: { en: "Type", ru: "Печатать", de: "Tippen" },
+  resolved_title: {
+    en: "All fixed. Well done.",
+    ru: "Всё готово. Отлично.",
+    de: "Alles erledigt. Gut gemacht.",
+  },
+  back_to_topics: {
+    en: "Back to my topics",
+    ru: "К моим темам",
+    de: "Zurück zu meinen Themen",
+  },
+  escalated_title: {
+    en: "Let's get a person to help",
+    ru: "Давайте позовём человека",
+    de: "Holen wir eine Person dazu",
+  },
+  connect_with: {
+    en: "I'll connect you with",
+    ru: "Я свяжу вас с",
+    de: "Ich verbinde Sie mit",
+  },
+  call_now: {
+    en: "Call now",
+    ru: "Позвонить сейчас",
+    de: "Jetzt anrufen",
+  },
   dashboard: {
     en: "Family dashboard",
     ru: "Семейная панель",
